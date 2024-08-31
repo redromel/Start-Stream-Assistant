@@ -1,4 +1,4 @@
-import pysmashgg
+
 import requests
 import json
 from dotenv import load_dotenv
@@ -12,8 +12,8 @@ api_url = 'https://api.start.gg/gql/alpha'
 slugs = "tournament/genesis-9-1/event/ultimate-singles"
 phase_id = 1749308
 vars = {"slug": slugs}
-vars2 = {"phaseId": phase_id, "page": 1, "perPage": 3}
-header = {"Authorization": "Bearer " + key}
+vars2 = {"phaseId": phase_id, "page": 1, "perPage": 11}
+header = {"Authorization": "Bearer " + key, 'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}
 
 
 
@@ -39,8 +39,10 @@ query getEventId($slug: String) {
 query2 = '''
 query PhaseSets($phaseId: ID!, $page: Int!, $perPage: Int!) {
   phase(id: $phaseId) {
-    id
+
     name
+    id
+    phaseOrder
     sets(
       page: $page
       perPage: $perPage
@@ -50,12 +52,24 @@ query PhaseSets($phaseId: ID!, $page: Int!, $perPage: Int!) {
         total
       }
       nodes {
+        fullRoundText
+        identifier
         id
+        
         slots {
           id
           entrant {
             id
             name
+          }
+          standing{
+            placement
+            stats{
+             score{
+             #... This grabs the set score for players
+              value
+             }
+            }
           }
         }
       }
@@ -65,7 +79,7 @@ query PhaseSets($phaseId: ID!, $page: Int!, $perPage: Int!) {
 
 '''
 
-payload = {'query': query, 'variables': vars}
+payload = {'query': query2, 'variables': vars2}
 
 response = requests.post(url=api_url,json=payload,headers=header)
 
