@@ -7,15 +7,16 @@ from query_parser import *
 from writer import *
 import time
 from nicegui import ui
+import main
 
 load_dotenv()
 key = os.getenv('smashgg_api')
 
 api_url = 'https://api.start.gg/gql/alpha'
 phase_id = 1749308
-vars2 = {"phaseId": phase_id, "page": 1, "perPage": 100}
 header = {"Authorization": "Bearer " + key, 'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}
-payload = {'query': BRACKET_QUERY, 'variables': vars2}
+
+slug_phase = []
 
 @contextmanager
 def button_disable(button: ui.button):
@@ -33,16 +34,16 @@ def input_disable(input: ui.input):
   finally:
     input.enable()
 
+
+
 async def bracket_listner(switch: ui.switch, input: ui.input):
 
   phase_id = input.value
-  vars2 = {"phaseId": phase_id, "page": 1, "perPage": 100}
-  header = {"Authorization": "Bearer " + key, 'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}
-  payload = {'query': BRACKET_QUERY, 'variables': vars2}
+  bracket_vars = {"phaseId": phase_id, "page": 1, "perPage": 100}
+  payload = {'query': BRACKET_QUERY, 'variables': bracket_vars}
   
 
   with input_disable(input):
-    # response = requests.post(url=api_url,json=payload,headers=header)
     try:
       async with httpx.AsyncClient() as client:
 
@@ -64,3 +65,16 @@ async def bracket_listner(switch: ui.switch, input: ui.input):
     finally:
       switch.value = False
 
+async def get_phases(button, input, dropdown):
+    slug = input.value
+    vars = {'slug': slug}
+    payload = {'query': EVENT_QUERY, 'variables': vars}
+    
+    with input_disable(input):
+        with button_disable(button):
+            async with httpx.AsyncClient() as client:
+                response = await client.post(url=api_url,json=payload,headers=header)
+                phases = phase_parse(response)
+                print('hi')
+                dropdown.set_options(phases)
+                return
