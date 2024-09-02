@@ -16,7 +16,6 @@ api_url = 'https://api.start.gg/gql/alpha'
 phase_id = 1749308
 header = {"Authorization": "Bearer " + key, 'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}
 
-slug_phase = []
 
 @contextmanager
 def button_disable(button: ui.button):
@@ -70,11 +69,14 @@ async def get_phases(button, input, dropdown):
     vars = {'slug': slug}
     payload = {'query': EVENT_QUERY, 'variables': vars}
     
-    with input_disable(input):
-        with button_disable(button):
-            async with httpx.AsyncClient() as client:
-                response = await client.post(url=api_url,json=payload,headers=header)
-                phases = phase_parse(response)
-                print('hi')
-                dropdown.set_options(phases)
-                return
+    try:
+        with input_disable(input):
+            with button_disable(button):
+                async with httpx.AsyncClient() as client:
+                    response = await client.post(url=api_url,json=payload,headers=header)
+                    phases = phase_parse(response)
+                    print(list(phases)[0])
+                    dropdown.set_options(phases, value = list(phases)[0])
+                    return
+    except:
+        ui.notify('Invalid Slug')
