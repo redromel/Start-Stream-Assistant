@@ -5,6 +5,7 @@ query ($phaseId: ID!, $page: Int!, $perPage: Int!) {
     
     name
     phaseOrder
+    state
     sets(
       page: $page
       perPage: $perPage
