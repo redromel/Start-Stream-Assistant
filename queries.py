@@ -1,3 +1,15 @@
+EVENT_QUERY = '''
+query getEventId($slug: String) {
+  event(slug: $slug) {
+    id
+    name
+    phases{
+      id
+      name
+    }
+  }
+},
+'''
 BRACKET_QUERY = '''
 query ($phaseId: ID!, $page: Int!, $perPage: Int!) {
   phase(id: $phaseId) {
