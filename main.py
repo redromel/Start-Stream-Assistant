@@ -45,7 +45,7 @@ def main():
   
   slug_input = ui.input(label='start.gg event slug', placeholder='tournament/tournament-name/event/event-name').props('size=80').props('rounded outlined dense')
   slug_button = ui.button('Submit', on_click=lambda e: get_phases(e.sender, slug_input, nameS))
-  nameS = ui.select(options=[],on_change=lambda e: print(e.value)).props('size=30')
+  nameS = ui.select(options=['Insert Slug'],on_change=lambda e: print(e.value),value='Insert Slug')
 
 
   # ui.button('hello',on_click=lambda e: ui.notify('WAZZUP'))
