@@ -33,16 +33,25 @@ def input_disable(input: ui.input):
   finally:
     input.enable()
 
+@contextmanager
+def select_disable(select: ui.select):
+  select.disable()
+  try:
+    yield
+  finally:
+    select.enable()
 
 
-async def bracket_listner(switch: ui.switch, input: ui.input):
 
-  phase_id = input.value
-  bracket_vars = {"phaseId": phase_id, "page": 1, "perPage": 100}
+async def bracket_listner(switch: ui.switch, select: ui.select):
+
+  print(select.value)
+  phase_id = select.value
+  bracket_vars = {"phaseId": phase_id, "page": 1, "perPage": 15}
   payload = {'query': BRACKET_QUERY, 'variables': bracket_vars}
   
 
-  with input_disable(input):
+  with select_disable(select):
     try:
       async with httpx.AsyncClient() as client:
 
