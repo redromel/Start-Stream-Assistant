@@ -10,8 +10,7 @@ from queries import *
 from query_parser import *
 from writer import *
 from nicegui import ui
-import event_listner
-
+from constants import *
 
 load_dotenv()
 key = os.getenv('smashgg_api')
@@ -32,28 +31,9 @@ payload2 = {'query': BRACKET_GRAPHIC_QUERY, 'variables': vars2}
 payload3 = {'query': BRACKET_QUERY, 'variables': vars2}
 
 
-def get_scoreboard():
 
-  phase_id = 1749308
-  phase_vars = {"phaseId": phase_id, "page": 1, "perPage": 30} 
-  phase_payload = {'query': BRACKET_QUERY, 'variables': phase_vars}
 
-  phase_response = requests.post(url=api_url,json=phase_payload,headers=header)
-  
-  set_data = bracket_parse(phase_response)
 
-  # print(json.dumps(set_data,indent=2))
-  # print(set_data[0])
-
-  for set in set_data:
-    if set['stream'] != None and set['state'] == 2:
-      data = get_set(set['id'])
-      print(json.dumps(data,indent=2))
-      scoreboard_writer(data)
-
-      
-    # else:
-    #    print('no streamed matches')
 
 
         
@@ -61,13 +41,8 @@ def get_scoreboard():
 def main():
   
 
-  # get_scoreboard()
-  # response = requests.post(url=api_url,json=payload3,headers=header)
-  # data = bracket_parse(response)
-  # print(data)
-  # bracket_writer(data)
-  # response_json = response.json()
-  # print(json.dumps(response_json,indent=2))
+  get_scoreboard()
+
   # data = response_json.get('data')
   # phase = data.get('phase')
   # sets = phase.get('sets')
@@ -105,6 +80,7 @@ def main():
   # texto = ui.input(label='Phase',placeholder='Phase')
   # test_switch = ui.switch('Full Test',on_change=lambda e: bracket_listner(e.sender, nameS))
   # ui.label('Top 8 Watcher on').bind_visibility_from(test_switch,'value')
+
 
 
 

@@ -2,9 +2,10 @@ from contextlib import contextmanager
 import httpx
 from dotenv import load_dotenv
 import os
+from constants import ONGOING
 from queries import *
 from query_parser import *
-from writer import *
+from writer import bracket_writer, scoreboard_writer
 import time
 from nicegui import ui
 import requests
@@ -14,7 +15,6 @@ load_dotenv()
 key = os.getenv('smashgg_api')
 
 api_url = 'https://api.start.gg/gql/alpha'
-phase_id = 1749308
 header = {"Authorization": "Bearer " + key, 'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}
 
 
@@ -98,10 +98,32 @@ async def get_phases(button, input, dropdown):
 def get_set(set_id):
     set_vars = {"setId": set_id}
     set_payload = {'query': SET_QUERY, 'variables': set_vars}
+
     set_response = requests.post(url=api_url,json=set_payload,headers=header)
     response_json = set_response.json()
     data = response_json.get('data')
     return data
+
+
+def get_scoreboard():
+
+  phase_id = 1749308
+  phase_vars = {"phaseId": phase_id, "page": 1, "perPage": 30} 
+  phase_payload = {'query': BRACKET_QUERY, 'variables': phase_vars}
+
+  phase_response = requests.post(url=api_url,json=phase_payload,headers=header)
+  
+  set_data = bracket_parse(phase_response)
+
+
+  for set in set_data:
+    if set['stream'] != None and set['state'] == ONGOING:
+      data = get_set(set['id'])
+      scoreboard_writer(data)
+      return
+    
+  print('no streamed matches')
+
 
 
 

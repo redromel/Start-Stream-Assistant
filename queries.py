@@ -107,6 +107,7 @@ query ($setId: ID!) {
   set(id: $setId){
     phaseGroup{
       phase{
+        name
         phaseOrder
       }
     }
