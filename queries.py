@@ -10,13 +10,29 @@ query getEventId($slug: String) {
   }
 },
 '''
-BRACKET_QUERY = '''
+
+PLAYER_QUERY = '''
+
+query($playerId: ID!){
+  player(id: $playerId){
+    gamerTag
+    user{
+      name
+      genderPronoun
+      location{
+        city
+        state
+        country
+      }
+    }
+    
+  }
+
+}
+'''
+BRACKET_GRAPHIC_QUERY = '''
 query ($phaseId: ID!, $page: Int!, $perPage: Int!) {
   phase(id: $phaseId) {
-
-    
-    name
-    phaseOrder
     state
     sets(
       page: $page
@@ -28,11 +44,9 @@ query ($phaseId: ID!, $page: Int!, $perPage: Int!) {
       }
       nodes {
         fullRoundText
-        identifier
-        
+        identifier  
         slots {
           entrant {
-
             name
           }
           standing{
@@ -42,6 +56,76 @@ query ($phaseId: ID!, $page: Int!, $perPage: Int!) {
               value
              }
             }
+          }
+        }
+      }
+    }
+  }
+},
+
+'''
+
+BRACKET_QUERY = '''
+query ($phaseId: ID!, $page: Int!, $perPage: Int!) {
+  phase(id: $phaseId) {
+    name
+    phaseOrder
+    sets(
+      page: $page
+      perPage: $perPage
+      sortType: STANDARD
+    ){
+      pageInfo {
+        total
+      }
+      nodes {
+        id
+        #... 1 = Not Started, 2 = Ongoing, 3 = Completed
+        state
+        stream{
+          streamName
+        }  
+        slots {
+          standing{
+            stats{
+             score{
+             #... This grabs the set score for players
+              value
+             }
+            }
+          }
+        }
+      }
+    }
+  }
+},
+
+'''
+
+SET_QUERY = '''
+query ($setId: ID!) {
+  set(id: $setId){
+    phaseGroup{
+      phase{
+        phaseOrder
+      }
+    }
+    fullRoundText
+    slots{
+      entrant{
+        name
+        participants{
+          user{
+            player{
+              id
+            }
+          }
+        }
+      }
+      standing{
+        stats{
+          score{
+            value
           }
         }
       }

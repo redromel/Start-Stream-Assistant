@@ -1,5 +1,5 @@
 import os
-
+from nicegui import ui
 def bracket_writer(set_data, setup=False):
 
   for set_data in set_data:
@@ -43,3 +43,11 @@ def bracket_writer(set_data, setup=False):
       f.close()
 
       playerCount = playerCount + 1
+
+def scoreboard_writer(set_data):
+    check_phase(set_data)
+
+  
+def check_phase(set_data):
+  
+  phase_number = set_data['set']['phaseGroup']['phase']['phaseOrder']

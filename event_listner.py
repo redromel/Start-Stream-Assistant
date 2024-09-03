@@ -7,6 +7,7 @@ from query_parser import *
 from writer import *
 import time
 from nicegui import ui
+import requests
 import main
 
 load_dotenv()
@@ -48,7 +49,7 @@ async def bracket_listner(switch: ui.switch, select: ui.select):
   print(select.value)
   phase_id = select.value
   bracket_vars = {"phaseId": phase_id, "page": 1, "perPage": 15}
-  payload = {'query': BRACKET_QUERY, 'variables': bracket_vars}
+  payload = {'query': BRACKET_GRAPHIC_QUERY, 'variables': bracket_vars}
   
 
   with select_disable(select):
@@ -65,8 +66,8 @@ async def bracket_listner(switch: ui.switch, select: ui.select):
             time.sleep(3)
           
           set_data = bracket_parse(response)
-          
           bracket_writer(set_data)
+
           if is_phase_complete(response) == True:
             break
           time.sleep(1)
@@ -85,7 +86,24 @@ async def get_phases(button, input, dropdown):
                     response = await client.post(url=api_url,json=payload,headers=header)
                     phases = phase_parse(response)
                     print(list(phases)[0])
+                    TOTAL_PHASES = len(list(phases))
                     dropdown.set_options(phases, value = list(phases)[0])
+                    print(TOTAL_PHASES)
+                    ui.notify(TOTAL_PHASES)
                     return
     except:
         ui.notify('Invalid Slug')
+
+
+def get_set(set_id):
+    set_vars = {"setId": set_id}
+    set_payload = {'query': SET_QUERY, 'variables': set_vars}
+    set_response = requests.post(url=api_url,json=set_payload,headers=header)
+    response_json = set_response.json()
+    data = response_json.get('data')
+    return data
+
+
+
+
+
