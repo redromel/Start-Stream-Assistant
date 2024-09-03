@@ -78,9 +78,21 @@ def player_parse(response):
     print(response.text)
     return response.status_code
   
+def get_page_info(response):
+  if response.status_code == 200:
+    response_json = response.json()
+    data = response_json.get('data')
+    phase = data.get('phase')
+    sets = phase.get('sets')
+    page_info = sets.get('pageInfo')
+    page_total = page_info.get('total')
 
-
-  
-
+    page_json = json.dumps(page_total)
+    page_data = json.loads(page_json)
+    return page_data
+  else:
+    print(f"Query failed with status code {response.status_code}")
+    print(response.text)
+    return response.status_code
   
   
