@@ -84,7 +84,7 @@ async def get_tourney_info(button, tourney_name, event_dropdown, stream_dropdown
     await get_streamers(stream_dropdown, tourney_name)
 
 
-async def get_events(button, input, dropdown):
+async def get_events(button, input, event_dropdown):
     slug = input.value
     vars = {'slug': slug}
     payload = {'query': EVENT_QUERY, 'variables': vars}
@@ -95,10 +95,8 @@ async def get_events(button, input, dropdown):
             async with httpx.AsyncClient() as client:
                 response = await client.post(url=api_url, json=payload, headers=header)
                 events = event_parse(response)
-
-                print(tournament_id)
-                dropdown.set_options(events, value=list(events))
-                dropdown.enable()
+                event_dropdown.set_options(events, value=list(events)[0])
+                event_dropdown.enable()
                 return
     # except:
     #     ui.notify('Invalid Slug')
@@ -117,11 +115,10 @@ async def get_streamers(stream_dropdown, tournament_slug):
             stream_list = ['No Streamers']
             stream_dropdown.set_options(stream_list, value=stream_list[0])
             stream_dropdown.disable()
-
             return
         for stream in streams:
             stream_list.append(stream['stream']['streamName'])
-        stream_dropdown.set_options(stream_list, value=stream_list[0])
+        stream_dropdown.set_options(stream_list, value=stream_list)
         stream_dropdown.enable()
 
 
@@ -133,7 +130,6 @@ async def get_phases(event_dropdown, phase_dropdown):
     async with httpx.AsyncClient() as client:
         response = await client.post(url=api_url, json=payload, headers=header)
         phases = phase_parse(response)
-
         phase_dropdown.set_options(phases, value=list(phases)[0])
         phase_dropdown.enable()
         return

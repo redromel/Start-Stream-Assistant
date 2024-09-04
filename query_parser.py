@@ -33,12 +33,7 @@ def event_parse(response):
 
         bracket_ids = {}
 
-        # !I know its bad practice to do multiple things for a function, but the query has already been called
-        tournament_json = json.dumps(event)
-        tournament_data = json.loads(tournament_json)
-        tournament_id = tournament_data['id']
-        
-
+      
         for name in set_data:
             bracket_ids[name['id']] = name['name']
 
@@ -51,6 +46,7 @@ def event_parse(response):
 
 def phase_parse(response):
     if response.status_code == 200:
+        print('1')
         response_json = response.json()
         data = response_json.get('data')
         event = data.get('event')
