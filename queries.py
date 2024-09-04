@@ -1,11 +1,28 @@
 EVENT_QUERY = '''
 query getEventId($slug: String) {
-  event(slug: $slug) {
-    id
+  tournament(slug: $slug){
     name
-    phases{
+    id
+    streamQueue{
+      id
+      stream{
+        streamName
+        streamLogo
+      }
+      sets{
+        id
+      }
+    }  
+    events{
       id
       name
+      videogame{
+        displayName
+      }
+      phases{
+        id
+        name
+      }
     }
   }
 },
@@ -133,5 +150,23 @@ query ($setId: ID!) {
     }
   }
 },
+
+'''
+
+STREAM_QUERY = '''
+query($tournamentId: ID!){
+
+  streamQueue(tournamentId: $tournamentId, includePlayerStreams: true){
+    id
+    stream{
+      streamName
+    }
+    sets{
+      id
+      state
+    }
+  }
+}
+
 
 '''
