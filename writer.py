@@ -128,6 +128,6 @@ def get_player(player_id):
    player_vars = {'playerId': player_id}
    player_payload = {'query': PLAYER_QUERY, 'variables': player_vars}
 
-   player_response = requests.post(url=api_url,json=player_payload,headers=header)
+   player_response = requests.post(url=API_URL,json=player_payload,headers=HEADER)
 
    return player_response

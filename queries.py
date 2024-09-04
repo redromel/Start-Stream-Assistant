@@ -155,16 +155,18 @@ query ($setId: ID!) {
 '''
 
 STREAM_QUERY = '''
-query($tournamentId: ID!){
+query($tourneySlug: String){
 
-  streamQueue(tournamentId: $tournamentId, includePlayerStreams: true){
-    id
-    stream{
-      streamName
-    }
-    sets{
+  tournament(slug: $tourneySlug){
+    streamQueue{
       id
-      state
+      stream{
+        streamName
+      }
+      sets{
+        id
+        state
+      }
     }
   }
 },

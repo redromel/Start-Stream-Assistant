@@ -7,8 +7,9 @@ NOT_STARTED = 1
 ONGOING = 2
 COMPLETED = 3
 
-load_dotenv()
-key = os.getenv('smashgg_api')
 
-api_url = 'https://api.start.gg/gql/alpha'
-header = {"Authorization": "Bearer " + key, 'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}
+load_dotenv()
+KEY = os.getenv('smashgg_api')
+
+API_URL = 'https://api.start.gg/gql/alpha'
+HEADER = {"Authorization": "Bearer " + KEY, 'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}
