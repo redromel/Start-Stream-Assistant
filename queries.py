@@ -166,7 +166,6 @@ query($tournamentId: ID!){
       state
     }
   }
-}
-
+},
 
 '''

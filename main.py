@@ -45,12 +45,12 @@ payload5 = {'query': STREAM_QUERY, 'variables': vars5}
 
 def main():
   
-  response = requests.post(url=api_url,json=payload5,headers=header)
-  response_json = response.json()
-  print(json.dumps(response_json,indent=2))
+  # response = requests.post(url=api_url,json=payload5,headers=header)
+  # response_json = response.json()
+  # print(json.dumps(response_json,indent=2))
   
   
-  # get_scoreboard()
+  get_scoreboard('rokyuugamer')
 
 
   # data = response_json.get('data')

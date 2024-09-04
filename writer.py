@@ -53,8 +53,6 @@ def bracket_writer(set_data, setup=False):
 def scoreboard_writer(set_data):
     
     path = "match_info/"
-    player_1_path = path + "/player_1_"
-    player_2_path = path + "/player_2_"
     player_count = 1 
 
 
@@ -80,7 +78,7 @@ def scoreboard_writer(set_data):
 
       player_count = player_count + 1
 
-      return
+    return
 
       
 
@@ -97,6 +95,7 @@ def player_info_builder(entrant_data):
   if entrant_data['entrant']['participants'][0]['user'] != None:
     player_id = entrant_data['entrant']['participants'][0]['user']['player']['id']
     
+    # print(player_id)
     location_gender_info = player_parse(get_player(player_id))
 
 

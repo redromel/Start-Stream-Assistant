@@ -78,6 +78,20 @@ def player_parse(response):
     print(response.text)
     return response.status_code
   
+def stream_parse(response):
+  if response.status_code == 200:
+    response_json = response.json()
+    data = response_json.get('data')
+    stream_queue = data.get('streamQueue')
+    stream_json = json.dumps(stream_queue)
+    stream_data = json.loads(stream_json)
+
+    return stream_data
+  else:
+    print(f"Query failed with status code {response.status_code}")
+    print(response.text)
+    return response.status_code
+  
 def get_page_info(response):
   if response.status_code == 200:
     response_json = response.json()
@@ -94,5 +108,7 @@ def get_page_info(response):
     print(f"Query failed with status code {response.status_code}")
     print(response.text)
     return response.status_code
+  
+
   
   
