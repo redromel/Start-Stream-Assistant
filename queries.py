@@ -133,6 +133,7 @@ query ($setId: ID!) {
     slots{
       entrant{
         name
+        id
         participants{
           user{
             player{
@@ -168,6 +169,17 @@ query($tourneySlug: String){
         state
       }
     }
+  }
+},
+
+'''
+
+SCOREBOARD_MUTATION = '''
+mutation ($setId: ID!, $winnerId: ID, $gameData: [BracketSetGameDataInput]){
+  
+  reportBracketSet(setId: $setId, winnerId: $winnerId, gameData: $gameData){
+    id
+    state
   }
 },
 

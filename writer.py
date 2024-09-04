@@ -91,11 +91,11 @@ def is_final_phase(set_data):
 
 
 def player_info_builder(entrant_data):
+  print(json.dumps(entrant_data,indent=2))
   player = {}
   if entrant_data['entrant']['participants'][0]['user'] != None:
     player_id = entrant_data['entrant']['participants'][0]['user']['player']['id']
     
-    # print(player_id)
     location_gender_info = player_parse(get_player(player_id))
 
 

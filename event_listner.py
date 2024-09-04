@@ -2,7 +2,7 @@ from contextlib import contextmanager
 import httpx
 from dotenv import load_dotenv
 import os
-from constants import ONGOING
+from constants import *
 from queries import *
 from query_parser import *
 from writer import bracket_writer, scoreboard_writer
@@ -11,14 +11,8 @@ from nicegui import ui
 import requests
 import main
 
-load_dotenv()
-key = os.getenv('smashgg_api')
 
-api_url = 'https://api.start.gg/gql/alpha'
-header = {"Authorization": "Bearer " + key,
-          'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}
 
-tournament_id = 0
 
 
 @contextmanager
@@ -59,13 +53,13 @@ async def bracket_listner(switch: ui.switch, select: ui.select):
         try:
             async with httpx.AsyncClient() as client:
 
-                response = await client.post(url=api_url, json=payload, headers=header)
+                response = await client.post(url=API_URL, json=payload, headers=HEADER)
 
                 while switch.value == True:
-                    response = await client.post(url=api_url, json=payload, headers=header)
+                    response = await client.post(url=API_URL, json=payload, headers=HEADER)
 
                     while isinstance(response, int):
-                        response = await client.post(url=api_url, json=payload, headers=header)
+                        response = await client.post(url=API_URL, json=payload, headers=HEADER)
                         time.sleep(3)
 
                     set_data = bracket_parse(response)
@@ -93,7 +87,7 @@ async def get_events(button, input, event_dropdown):
     with input_disable(input):
         with button_disable(button):
             async with httpx.AsyncClient() as client:
-                response = await client.post(url=api_url, json=payload, headers=header)
+                response = await client.post(url=API_URL, json=payload, headers=HEADER)
                 events = event_parse(response)
                 event_dropdown.set_options(events, value=list(events)[0])
                 event_dropdown.enable()
@@ -106,7 +100,7 @@ async def get_streamers(stream_dropdown, tournament_slug):
     vars = {'tourneySlug':  tournament_slug.value}
     payload = {'query': STREAM_QUERY, 'variables': vars}
     async with httpx.AsyncClient() as client:
-        response = await client.post(url=api_url, json=payload, headers=header)
+        response = await client.post(url=API_URL, json=payload, headers=HEADER)
         streams = stream_parse(response)
 
         stream_list = []
@@ -128,7 +122,7 @@ async def get_phases(event_dropdown, phase_dropdown):
     payload = {'query': PHASE_QUERY, 'variables': vars}
 
     async with httpx.AsyncClient() as client:
-        response = await client.post(url=api_url, json=payload, headers=header)
+        response = await client.post(url=API_URL, json=payload, headers=HEADER)
         phases = phase_parse(response)
         phase_dropdown.set_options(phases, value=list(phases)[0])
         phase_dropdown.enable()
@@ -139,7 +133,7 @@ def get_set(set_id):
     set_vars = {"setId": set_id}
     set_payload = {'query': SET_QUERY, 'variables': set_vars}
 
-    set_response = requests.post(url=api_url, json=set_payload, headers=header)
+    set_response = requests.post(url=API_URL, json=set_payload, headers=HEADER)
     response_json = set_response.json()
     data = response_json.get('data')
     return data
@@ -147,16 +141,13 @@ def get_set(set_id):
 
 def get_scoreboard(stream_name):
 
-    if tournament_id == 0:
-        print("tournament not set")
-        return
 
-    tourney_id = 704088
-    stream_vars = {'tournamentId':  tourney_id}
+    tourney_slug = 'tournament/py-testing-tourney-2'
+    stream_vars = {'tourneySlug':  tourney_slug}
     stream_payload = {'query': STREAM_QUERY, 'variables': stream_vars}
 
     stream_response = requests.post(
-        url=api_url, json=stream_payload, headers=header)
+        url=API_URL, json=stream_payload, headers=HEADER)
 
     stream_data = stream_parse(stream_response)
     for stream in stream_data:

@@ -105,8 +105,6 @@ def player_parse(response):
 def stream_parse(response):
     if response.status_code == 200:
         response_json = response.json()
-
-
         data = response_json.get('data')
         tourney = data.get('tournament')
         stream_queue = tourney.get('streamQueue')
