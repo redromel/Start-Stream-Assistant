@@ -124,43 +124,6 @@ def get_scoreboard(stream_name):
   print('no streamed matches')
   
 
-  # try:
-    # page = 1
-    # phase_id = 1749308
-    # phase_vars = {"phaseId": phase_id, "page": page, "perPage": 50} 
-    # phase_payload = {'query': BRACKET_QUERY, 'variables': phase_vars}
-
-    # phase_response = requests.post(url=api_url,json=phase_payload,headers=header)
-
-    # set_data = bracket_parse(phase_response)
-    # page_info = get_page_info(phase_response)
-    # print(page_info)
-
-    # while page_info > 0:
-
-
-    #   phase_vars = {"phaseId": phase_id, "page": page, "perPage": 50} 
-    #   phase_payload = {'query': BRACKET_QUERY, 'variables': phase_vars}
-    #   phase_response = requests.post(url=api_url,json=phase_payload,headers=header)
-      
-    #   set_data = bracket_parse(phase_response)
-    #   page_info = get_page_info(phase_response)
-
-      
-    #   for set in set_data:
-    #     if set['stream'] != None and set['state'] == ONGOING:
-    #       data = get_set(set['id'])
-    #       scoreboard_writer(data)
-    #       return
-        
-    #   page = page + 1
-    #   time.sleep(.5)
-      
-    # print('no streamed matches')
-  # except:
-  #    print('error')
-
-
    
 
 
