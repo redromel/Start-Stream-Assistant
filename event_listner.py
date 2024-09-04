@@ -74,7 +74,7 @@ async def bracket_listner(switch: ui.switch, select: ui.select):
     finally:
       switch.value = False
 
-async def get_phases(button, input, dropdown):
+async def get_events(button, input, dropdown):
     slug = input.value
     vars = {'slug': slug}
     payload = {'query': EVENT_QUERY, 'variables': vars}
@@ -84,15 +84,27 @@ async def get_phases(button, input, dropdown):
             with button_disable(button):
                 async with httpx.AsyncClient() as client:
                     response = await client.post(url=api_url,json=payload,headers=header)
-                    phases = phase_parse(response)
-                    print(list(phases)[0])
-                    TOTAL_PHASES = len(list(phases))
-                    dropdown.set_options(phases, value = list(phases)[0])
-                    print(TOTAL_PHASES)
-                    ui.notify(TOTAL_PHASES)
+                    events = event_parse(response)
+
+                    dropdown.set_options(events, value = list(events)[0])
+                    dropdown.enable()
                     return
     except:
         ui.notify('Invalid Slug')
+
+async def get_phases(event_dropdown, phase_dropdown):
+    event_id = event_dropdown.value
+    vars = {'eventId': event_id}
+    payload = {'query': PHASE_QUERY, 'variables': vars}
+
+    async with httpx.AsyncClient() as client:
+      response = await client.post(url=api_url,json=payload,headers=header)
+      phases = phase_parse(response)
+
+      phase_dropdown.set_options(phases, value = list(phases)[0])
+      phase_dropdown.enable()
+      return
+
 
 
 def get_set(set_id):

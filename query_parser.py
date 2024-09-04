@@ -22,6 +22,26 @@ def bracket_parse(response):
     return response.status_code
 
 
+def event_parse(response):
+  if response.status_code == 200:
+    response_json = response.json()
+    data = response_json.get('data')
+    event = data.get('tournament')
+    events = event.get('events')
+    set_json = json.dumps(events)
+    set_data = json.loads(set_json)
+    
+    bracket_ids = {}
+
+    for name in set_data:
+      bracket_ids[name['id']] = name['name']
+
+    return bracket_ids
+  else:
+    print(f"Query failed with status code {response.status_code}")
+    print(response.text)
+    return response.status_code
+  
 def phase_parse(response):
   if response.status_code == 200:
     response_json = response.json()
