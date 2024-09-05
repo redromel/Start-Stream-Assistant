@@ -40,33 +40,34 @@ payload5 = {'query': STREAM_QUERY, 'variables': vars5}
 def main():
     ...
 
-    # #  *Grabbing Events and Phases based on tournament slug
-    # slug_input = ui.input(label='start.gg tournament slug',
-    #                       placeholder='tournament/tournament-name/').props('size=80').props('rounded outlined dense')
+    #  *Grabbing Events and Phases based on tournament slug
+    slug_input = ui.input(label='start.gg tournament slug',
+                          placeholder='tournament/tournament-name/').props('size=80').props('rounded outlined dense')
 
-    # slug_button = ui.button('Submit', on_click=lambda e: get_tourney_info(
-    #     e.sender, slug_input, event_select, stream_select))
+    slug_button = ui.button('Submit', on_click=lambda e: get_tourney_info(
+        e.sender, slug_input, event_select, stream_select))
 
-    # event_select = ui.select(label='Select Event',
-    #                          options=['Insert Slug'],
-    #                          on_change=lambda e: get_phases(e, phase_select),
-    #                          value=[]).classes('w-60')
+    event_select = ui.select(label='Select Event',
+                             options=['Insert Slug'],
+                             on_change=lambda e: get_phases(e, phase_select),
+                             value=[]).classes('w-60')
 
-    # phase_select = ui.select(label='Select Phase',
-    #                          options=['Insert Slug'],
-    #                          on_change=lambda e: print(e.value),
-    #                          value=[]).classes('w-60')
-
+    phase_select = ui.select(label='Select Phase',
+                             options=['Insert Slug'],
+                             on_change=lambda e: print(e.value),
+                             value=[]).classes('w-60')
 
     # *Grabbing Stream based on tournament slug
-    # stream_select = ui.select(label='Select Stream',
-    #                          options=['Insert Slug'],
-    #                          on_change=lambda e: print(e.value),
-    #                          value=[]).classes('w-60')
+    stream_select = ui.select(label='Select Stream',
+                             options=['Insert Slug'],
+                             on_change=lambda e: print(e.value),
+                             value=[]).classes('w-60')
 
-    # event_select.disable()
-    # phase_select.disable()
-    # stream_select.disable()
+    event_select.disable()
+    phase_select.disable()
+    stream_select.disable()
+
+
 
 
 if __name__ in {"__main__", "__mp_main__"}:
