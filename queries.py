@@ -9,7 +9,13 @@ query getEventId($slug: String) {
       phases{
         id
         name
-      }
+        phaseGroups{
+          nodes{
+            id
+            displayIdentifier
+          }
+        }
+      } 
     }
   }
 },
@@ -21,6 +27,19 @@ query($eventId: ID){
     phases{
       name
       id
+    }
+  }
+},
+'''
+
+POOL_QUERY = '''
+query($phaseId: ID){
+  phase(id: $phaseId){
+    phaseGroups{
+      nodes{
+        id
+        displayIdentifier
+      }
     }
   }
 },

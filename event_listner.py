@@ -155,6 +155,18 @@ async def get_phases(event_dropdown, phase_dropdown):
         phase_dropdown.enable()
         return
 
+async def get_pools(phase_dropdown, pool_dropdown):
+    phase_id = phase_dropdown.value
+    vars = {'phaseId': phase_id}
+    payload = {'query': POOL_QUERY, 'variables': vars}
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(url=api_url, json=payload, headers=header)
+        phases = pool_parse(response)
+        pool_dropdown.set_options(phases, value=list(phases)[0])
+        pool_dropdown.enable()
+        return
+
 
 def get_set(set_id):
     set_vars = {"setId": set_id}
