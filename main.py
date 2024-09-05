@@ -20,6 +20,7 @@ phase_id = 1749308
 player_id = 16105
 slug = 'tournament/genesis-9-1/event/melee-singles'
 t_slug = 'tournament/py-testing-tourney-2'
+t_slug = 'tournament/dreamhack-dallas-2024'
 t_id = 704088
 vars = {'slug': slug}
 
@@ -39,7 +40,6 @@ payload5 = {'query': STREAM_QUERY, 'variables': vars5}
 
 def main():
     ...
-
     # #  *Grabbing Events and Phases based on tournament slug
     # slug_input = ui.input(label='start.gg tournament slug',
     #                       placeholder='tournament/tournament-name/').props('size=80').props('rounded outlined dense')
@@ -57,8 +57,7 @@ def main():
     #                          on_change=lambda e: print(e.value),
     #                          value=[]).classes('w-60')
 
-
-    # *Grabbing Stream based on tournament slug
+    # # *Grabbing Stream based on tournament slug
     # stream_select = ui.select(label='Select Stream',
     #                          options=['Insert Slug'],
     #                          on_change=lambda e: print(e.value),
@@ -69,6 +68,7 @@ def main():
     # stream_select.disable()
 
 
+
 if __name__ in {"__main__", "__mp_main__"}:
     main()
-    ui.run()
+    # ui.run()

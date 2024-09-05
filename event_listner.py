@@ -78,35 +78,55 @@ async def bracket_listner(switch: ui.switch, select: ui.select):
             switch.value = False
 
 
-async def get_tourney_info(button, tourney_name, event_dropdown, stream_dropdown):
+def extract_slug(url):
 
-    await get_events(button, tourney_name, event_dropdown)
-    await get_streamers(stream_dropdown, tourney_name)
+    prefix = 'start.gg/'
+    if prefix in url:
+        slug = url.split('start.gg/')[-1]
+    else:
+        slug = url
+
+    suffix = slug.split('/', 2)
+
+    if len(suffix) > 1:
+
+        slug = '/'.join(suffix[:2])
+        return slug
+    else:
+        return slug
+
+
+async def get_tourney_info(button, tournament_url, event_dropdown, stream_dropdown):
+
+    await get_events(button, tournament_url, event_dropdown)
+    await get_streamers(stream_dropdown, tournament_url)
 
 
 async def get_events(button, input, event_dropdown):
-    slug = input.value
+    slug = extract_slug(input.value)
     vars = {'slug': slug}
     payload = {'query': EVENT_QUERY, 'variables': vars}
 
-    # try:
-    with input_disable(input):
-        with button_disable(button):
-            async with httpx.AsyncClient() as client:
-                response = await client.post(url=api_url, json=payload, headers=header)
-                events = event_parse(response)
-                event_dropdown.set_options(events, value=list(events)[0])
-                event_dropdown.enable()
-                return
-    # except:
-    #     ui.notify('Invalid Slug')
+    try:
+        with input_disable(input):
+            with button_disable(button):
+                async with httpx.AsyncClient() as client:
+                    response = await client.post(url=api_url, json=payload, headers=header)
+                    events = event_parse(response)
+                    event_dropdown.set_options(events, value=list(events)[0])
+                    event_dropdown.enable()
+                    return
+    except:
+        ui.notify('Invalid Slug')
 
 
-async def get_streamers(stream_dropdown, tournament_slug):
-    vars = {'tourneySlug':  tournament_slug.value}
+async def get_streamers(stream_dropdown, tournament_url):
+    slug = extract_slug(tournament_url.value)
+    vars = {'tourneySlug':  slug}
     payload = {'query': STREAM_QUERY, 'variables': vars}
     async with httpx.AsyncClient() as client:
         response = await client.post(url=api_url, json=payload, headers=header)
+        
         streams = stream_parse(response)
 
         stream_list = []
@@ -115,6 +135,7 @@ async def get_streamers(stream_dropdown, tournament_slug):
             stream_list = ['No Streamers']
             stream_dropdown.set_options(stream_list, value=stream_list[0])
             stream_dropdown.disable()
+            print('hello')
             return
         for stream in streams:
             stream_list.append(stream['stream']['streamName'])
