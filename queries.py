@@ -9,7 +9,13 @@ query getEventId($slug: String) {
       phases{
         id
         name
-      }
+        phaseGroups{
+          nodes{
+            id
+            displayIdentifier
+          }
+        }
+      } 
     }
   }
 },
