@@ -32,6 +32,19 @@ query($eventId: ID){
 },
 '''
 
+POOL_QUERY = '''
+query($phaseId: ID){
+  phase(id: $phaseId){
+    phaseGroups{
+      nodes{
+        id
+        displayIdentifier
+      }
+    }
+  }
+},
+'''
+
 PLAYER_QUERY = '''
 
 query($playerId: ID!){

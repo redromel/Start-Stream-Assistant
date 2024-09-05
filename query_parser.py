@@ -1,7 +1,6 @@
 import json
 
 
-
 def bracket_parse(response):
 
     if response.status_code == 200:
@@ -31,13 +30,12 @@ def event_parse(response):
         set_json = json.dumps(events)
         set_data = json.loads(set_json)
 
-        bracket_ids = {}
+        event_ids = {}
 
-      
         for name in set_data:
-            bracket_ids[name['id']] = name['name']
+            event_ids[name['id']] = name['name']
 
-        return bracket_ids
+        return event_ids
     else:
         print(f"Query failed with status code {response.status_code}")
         print(response.text)
@@ -46,7 +44,6 @@ def event_parse(response):
 
 def phase_parse(response):
     if response.status_code == 200:
-        print('1')
         response_json = response.json()
         data = response_json.get('data')
         event = data.get('event')
@@ -54,12 +51,34 @@ def phase_parse(response):
         set_json = json.dumps(phases)
         set_data = json.loads(set_json)
 
-        bracket_ids = {}
+        phase_ids = {}
 
         for name in set_data:
-            bracket_ids[name['id']] = name['name']
+            phase_ids[name['id']] = name['name']
 
-        return bracket_ids
+        return phase_ids
+    else:
+        print(f"Query failed with status code {response.status_code}")
+        print(response.text)
+        return response.status_code
+
+
+def pool_parse(response):
+    if response.status_code == 200:
+        response_json = response.json()
+        data = response_json.get('data')
+        event = data.get('phase')
+        phaseGroups = event.get('phaseGroups')
+        pools = phaseGroups.get('nodes')
+        set_json = json.dumps(pools)
+        set_data = json.loads(set_json)
+
+        pool_ids = {}
+
+        for name in set_data:
+            pool_ids[name['id']] = "Pool " + str(name['displayIdentifier'])
+
+        return pool_ids
     else:
         print(f"Query failed with status code {response.status_code}")
         print(response.text)
@@ -105,7 +124,6 @@ def player_parse(response):
 def stream_parse(response):
     if response.status_code == 200:
         response_json = response.json()
-
 
         data = response_json.get('data')
         tourney = data.get('tournament')
