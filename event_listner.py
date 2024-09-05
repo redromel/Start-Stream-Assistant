@@ -5,7 +5,7 @@ import os
 from constants import *
 from queries import *
 from query_parser import *
-from writer import bracket_writer, scoreboard_writer
+from writer import bracket_writer, scoreboard_json_writer, scoreboard_writer
 import time
 from nicegui import ui
 import requests
@@ -154,7 +154,6 @@ def get_scoreboard(stream_name):
         if stream['stream']['streamName'] == stream_name:
             for set in stream['sets']:
                 if set['state'] == ONGOING:
-                    print(set['id'])
-                    scoreboard_writer(get_set(set['id']))
+                    scoreboard_json_writer(get_set(set['id']))
                     return
     print('no streamed matches')

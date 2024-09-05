@@ -123,6 +123,7 @@ query ($phaseId: ID!, $page: Int!, $perPage: Int!) {
 SET_QUERY = '''
 query ($setId: ID!) {
   set(id: $setId){
+    id
     phaseGroup{
       phase{
         name
