@@ -44,8 +44,8 @@ payload5 = {"query": STREAM_QUERY, "variables": vars5}
 def main():
     ...
 
-    response = requests.post(url=api_url, json=payload4, headers=header)
-    print(json.dumps(response.json(), indent=2))
+
+
     # #  *Grabbing Events and Phases based on tournament slug
     slug_input = (
         ui.input(
