@@ -6,9 +6,6 @@ query getEventId($slug: String) {
     events{
       id
       name
-      videogame{
-        displayName
-      }
       phases{
         id
         name
