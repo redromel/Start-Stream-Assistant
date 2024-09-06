@@ -241,8 +241,7 @@ async def mutation_writer(p1_score, p2_score,player_1,player_2):
 
 
     # this would happen due to a name swap
-    if gameNum == 0:
-        return 0
+
     
     # first game
     if gameNum == 1:
@@ -264,16 +263,21 @@ async def mutation_writer(p1_score, p2_score,player_1,player_2):
 
 
     mutation = {}
-
     mutation["setId"] = setId
     match_data = {}
+    mutation["gameData"] = []
+    
+    if gameNum == 0:
+        match_data["gameNum"] = gameNum
+        mutation["gameData"].append(match_data)
+        return json.dumps(mutation)
 
     match_data["winnerId"] = winnerId
     match_data["gameNum"] = gameNum
     match_data["entrant1Score"] = entrant1Score
     match_data["entrant2Score"] = entrant2Score
 
-    mutation["gameData"] = []
+
 
 
 
