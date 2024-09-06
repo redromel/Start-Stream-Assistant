@@ -81,17 +81,17 @@ async def bracket_listner(switch: ui.switch, select: ui.select):
 
 def extract_slug(url):
 
-    prefix = 'start.gg/'
+    prefix = "start.gg/"
     if prefix in url:
-        slug = url.split('start.gg/')[-1]
+        slug = url.split("start.gg/")[-1]
     else:
         slug = url
 
-    suffix = slug.split('/', 2)
+    suffix = slug.split("/", 2)
 
     if len(suffix) > 1:
 
-        slug = '/'.join(suffix[:2])
+        slug = "/".join(suffix[:2])
         return slug
     else:
         return slug
@@ -112,13 +112,15 @@ async def get_events(button, input, event_dropdown):
         with input_disable(input):
             with button_disable(button):
                 async with httpx.AsyncClient() as client:
-                    response = await client.post(url=API_URL, json=payload, headers=HEADER)
+                    response = await client.post(
+                        url=API_URL, json=payload, headers=HEADER
+                    )
                     events = event_parse(response)
                     event_dropdown.set_options(events, value=list(events)[0])
                     event_dropdown.enable()
                     return
     except:
-        ui.notify('Invalid Slug')
+        ui.notify("Invalid Slug")
 
 
 async def get_streamers(stream_dropdown, tournament_url):
@@ -135,7 +137,7 @@ async def get_streamers(stream_dropdown, tournament_url):
             stream_list = ["No Streamers"]
             stream_dropdown.set_options(stream_list, value=stream_list[0])
             stream_dropdown.disable()
-            print('hello')
+            print("hello")
             return
         for stream in streams:
             stream_list.append(stream["stream"]["streamName"])
@@ -155,10 +157,11 @@ async def get_phases(event_dropdown, phase_dropdown):
         phase_dropdown.enable()
         return
 
+
 async def get_pools(phase_dropdown, pool_dropdown):
     phase_id = phase_dropdown.value
-    vars = {'phaseId': phase_id}
-    payload = {'query': POOL_QUERY, 'variables': vars}
+    vars = {"phaseId": phase_id}
+    payload = {"query": POOL_QUERY, "variables": vars}
 
     async with httpx.AsyncClient() as client:
         response = await client.post(url=api_url, json=payload, headers=header)
@@ -284,8 +287,12 @@ def swap_players():
 
 def get_scoreboard(stream_name):
 
-    tourney_slug = "tournament/py-testing-tourney-2"
-    stream_vars = {"tourneySlug": tourney_slug}
+    if tournament_id == 0:
+        print("tournament not set")
+        return
+
+    tourney_id = 704088
+    stream_vars = {"tournamentId": tourney_id}
     stream_payload = {"query": STREAM_QUERY, "variables": stream_vars}
 
     stream_response = requests.post(url=API_URL, json=stream_payload, headers=HEADER)

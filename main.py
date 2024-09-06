@@ -25,24 +25,20 @@ from PIL import Image, ImageDraw, ImageOps
 # t_id = 704088
 
 # keep iterating through pages until pageInfo = 0 and nodes = []
-
-# P1 = 17646355
-# P2 = 17646351
-
-mutation_vars = {
-    "setId": 79168390,
-    "winnerId": 17646351,
-    "gameData": [
-        {"winnerId": 17646355, "gameNum": 1},
-        {"winnerId": 17646355, "gameNum": 2},
-        {"winnerId": 17646355, "gameNum": 3},
-        {"winnerId": 17646351, "gameNum": 3},
-        {"winnerId": 17646351, "gameNum": 4},
-        {"winnerId": 17646351, "gameNum": 5},
-    ],
+vars2 = {"phaseId": phase_id, "page": 1, "perPage": 30}
+vars3 = {"playerId": player_id}
+vars4 = {"slug": t_slug}
+vars5 = {"tournamentId": t_id}
+HEADER = {
+    "Authorization": "Bearer " + KEY,
+    "Cache-Control": "no-cache",
+    "Pragma": "no-cache",
 }
-
-set_payload = {"query": SCOREBOARD_MUTATION, "variables": mutation_vars}
+payload = {"query": PLAYER_QUERY, "variables": vars3}
+payload2 = {"query": BRACKET_GRAPHIC_QUERY, "variables": vars2}
+payload3 = {"query": BRACKET_QUERY, "variables": vars2}
+payload4 = {"query": EVENT_QUERY, "variables": vars4}
+payload5 = {"query": STREAM_QUERY, "variables": vars5}
 
 
 def main():
@@ -127,6 +123,13 @@ def main():
         .props("size=80")
         .props("rounded outlined dense")
     )
+    slug_input = (
+        ui.input(
+            label="start.gg tournament slug", placeholder="tournament/tournament-name/"
+        )
+        .props("size=80")
+        .props("rounded outlined dense")
+    )
 
     slug_button = ui.button(
         "Submit",
@@ -142,16 +145,22 @@ def main():
         value=[],
     ).classes("w-60")
 
-    phase_select = ui.select(label='Select Phase',
-                             options=['Insert Slug'],
-                             on_change=lambda e: print(e.value),
-                             value=[]).classes('w-60')
+    phase_select = ui.select(
+        label="Select Phase",
+        options=["Insert Slug"],
+        on_change=lambda e: get_pools(e, pool_select),
+        value=[],
+    ).classes("w-60")
+
+
 
     # *Grabbing Stream based on tournament slug
-    stream_select = ui.select(label='Select Stream',
-                             options=['Insert Slug'],
-                             on_change=lambda e: print(e.value),
-                             value=[]).classes('w-60')
+    stream_select = ui.select(
+        label="Select Stream",
+        options=["Insert Slug"],
+        on_change=lambda e: print(e.value),
+        value=[],
+    ).classes("w-60")
 
     event_select.disable()
     phase_select.disable()
