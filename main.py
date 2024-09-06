@@ -9,6 +9,7 @@ import requests
 from event_listner import *
 from queries import *
 from query_parser import *
+from scoreboard import *
 from writer import *
 from nicegui import ui
 from constants import *
@@ -48,6 +49,10 @@ set_payload = {"query": SCOREBOARD_MUTATION, "variables": mutation_vars}
 def main():
     ...
 
+    round = ui.input(
+        label="Round",
+        on_change=lambda e: change_text(e.value, path="match_info\match_round.txt"),
+    )
     round = ui.input(
         label="Round",
         on_change=lambda e: change_text(e.value, path="match_info\match_round.txt"),
@@ -109,6 +114,7 @@ def main():
         ),
     )
     # #  *Grabbing Events and Phases based on tournament slug
+    # #  *Grabbing Events and Phases based on tournament slug
     slug_input = (
         ui.input(
             label="start.gg tournament slug", placeholder="tournament/tournament-name/"
@@ -147,6 +153,7 @@ def main():
     ui.dark_mode().enable()
     event_select.disable()
     phase_select.disable()
+    stream_select.disable()
     stream_select.disable()
     # get_scoreboard('rokyuugamer')
 
