@@ -497,7 +497,7 @@ async def mutation_writer(p1_score, p2_score,player_1,player_2):
     if gameNum == 0:
         match_data["gameNum"] = gameNum
         mutation["gameData"].append(match_data)
-        return json.dumps(mutation)
+        return json.dumps(mutation), setId
 
     match_data["winnerId"] = winnerId
     match_data["gameNum"] = gameNum
@@ -514,7 +514,7 @@ async def mutation_writer(p1_score, p2_score,player_1,player_2):
         with open(MATCH_MUTATION_PATH, "w") as file:
             file.write(json.dumps(mutation))
             
-        return json.dumps(mutation)
+        return json.dumps(mutation), setId
 
     else:
         with open(MATCH_MUTATION_PATH, "r") as file:
@@ -524,7 +524,7 @@ async def mutation_writer(p1_score, p2_score,player_1,player_2):
         with open(MATCH_MUTATION_PATH, "w") as file:
             file.write(json.dumps(mutation))
         
-        return json.dumps(mutation)
+        return json.dumps(mutation), setId
     
 def win_counter(mutation_json, p1_score, p2_score, p1_id, p2_id):
     

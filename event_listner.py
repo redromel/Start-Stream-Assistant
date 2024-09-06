@@ -15,7 +15,7 @@ from writer import (
 import time
 from nicegui import ui
 import requests
-import main
+
 
 
 @contextmanager
@@ -173,6 +173,7 @@ async def get_pools(phase_dropdown, pool_dropdown):
 
 async def get_scoreboard_data(
     match_button,
+    report_score_button,
     slug_value,
     round,
     player_1_input,
@@ -202,6 +203,7 @@ async def get_scoreboard_data(
         round.disable()
         player_1_input.disable()
         player_2_input.disable()
+        report_score_button.enable()
     except:
         ui.notify("No Matches Available")
         return
@@ -369,8 +371,9 @@ async def mutate_score(
         await change_text(input, path)
         return
     else:
-        mutation_vars = await mutation_writer(p1_score, p2_score, player_1, player_2)
+        mutation_vars, set_id = await mutation_writer(p1_score, p2_score, player_1, player_2)
         await send_mutation(mutation_vars)
+        scoreboard_json_writer(get_set(set_id))
 
 
 async def send_mutation(mutation_vars):
@@ -383,6 +386,9 @@ async def send_mutation(mutation_vars):
         response = await client.post(url=API_URL, json=mutation_payload, headers=HEADER)
         print(json.dumps(response.json(), indent=2))
 
+
+async def report_score():
+    ...
 
 async def change_text(input, path):
     with open(path, "w") as file:

@@ -5,117 +5,18 @@
 # TODO:  Custom Flags (AT THE END)
 
 from dotenv import load_dotenv
-import requests
 from event_listner import *
 from queries import *
 from query_parser import *
+from scoreboard_components import Scoreboard_Components
 from writer import *
 from nicegui import ui
 from constants import *
-
-from PIL import Image, ImageDraw, ImageOps
-
-
-# *Testing variables
-phase_id = 1749308
-# phase_id = 1276356
-player_id = 16105
-slug = 'tournament/genesis-9-1/event/melee-singles'
-t_slug = 'tournament/py-testing-tourney-2'
-t_id = 704088
-
-# keep iterating through pages until pageInfo = 0 and nodes = []
-vars2 = {"phaseId": phase_id, "page": 1, "perPage": 30}
-vars3 = {"playerId": player_id}
-vars4 = {"slug": t_slug}
-vars5 = {"tournamentId": t_id}
-HEADER = {
-    "Authorization": "Bearer " + KEY,
-    "Cache-Control": "no-cache",
-    "Pragma": "no-cache",
-}
-payload = {"query": PLAYER_QUERY, "variables": vars3}
-payload2 = {"query": BRACKET_GRAPHIC_QUERY, "variables": vars2}
-payload3 = {"query": BRACKET_QUERY, "variables": vars2}
-payload4 = {"query": EVENT_QUERY, "variables": vars4}
-payload5 = {"query": STREAM_QUERY, "variables": vars5}
 
 
 def main():
     ...
 
-    round = ui.input(
-        label="Round",
-        on_change=lambda e: change_text(e.value, path="match_info\match_round.txt"),
-    )
-    player_1_input = ui.input(
-        label="Player 1",
-        on_change=lambda e: change_text(
-            e.value, path="match_info\player_1_gamertag.txt"
-        ),
-    )
-    player_1_score = ui.number(
-        "P1 Score",
-        min=0,
-        precision=0,
-        value=0,
-        on_change=lambda e: mutate_score(
-            p1_score=int(e.value),
-            p2_score=int(player_2_score.value),
-            player_1=player_1_input.value,
-            player_2=player_2_input.value,
-            player = 1,
-            path="match_info\player_1_score.txt",
-            match_button=grab_matches,
-        ),
-    )
-
-    player_2_input = ui.input(
-        label="Player 2",
-        on_change=lambda e: change_text(
-            e.value, path="match_info\player_2_gamertag.txt"
-        ),
-    )
-
-    player_2_score = ui.number(
-        "P2 Score",
-        min=0,
-        precision=0,
-        value=0,
-        on_change=lambda e: mutate_score(
-            p1_score=int(player_1_score.value),
-            p2_score=int(e.value),
-            player = 2,
-            player_1=player_1_input.value,
-            player_2=player_2_input.value,
-            path="match_info\player_2_score.txt",
-            match_button=grab_matches,
-        ),
-    )
-    grab_matches = ui.button(
-        "Grab Matches",
-        on_click=lambda e: get_scoreboard_data(
-            e.sender,
-            slug_input.value,
-            round,
-            player_1_input,
-            player_1_score,
-            player_2_input,
-            player_2_score,
-            stream_select,
-        ),
-    )
-    swap_button = ui.button(
-        "Swap Players",
-        on_click=lambda: swap_player_ui(
-            round,
-            player_1_input,
-            player_1_score,
-            player_2_input,
-            player_2_score,
-            grab_matches,
-        ),
-    )
     # #  *Grabbing Events and Phases based on tournament slug
     slug_input = (
         ui.input(
@@ -153,19 +54,117 @@ def main():
         value=[],
     ).classes("w-60")
 
+    ui.separator()
 
+    # *Scoreboard Stuff
 
-    # *Grabbing Stream based on tournament slug
-    stream_select = ui.select(
-        label="Select Stream",
-        options=["Insert Slug"],
-        on_change=lambda e: print(e.value),
-        value=[],
-    ).classes("w-60")
+    scoreboard = Scoreboard_Components()
+
+    stream_select = scoreboard.stream_select
+    grab_matches_button = scoreboard.grab_match_button
+    player_1_input = scoreboard.player_1_input
+
+    grab_matches_button.on_click(
+        lambda e: scoreboard.handle_grab_match_click(
+            e, slug=extract_slug(slug_input.value)
+        )
+    )
+
+    # stream_select = ui.select(
+    #     label="Select Stream",
+    #     options=["Insert Slug"],
+    #     on_change=lambda e: print(e.value),
+    #     value=[],
+    # ).classes("w-60")
+
+    # round = ui.input(
+    #     label="Round",
+    #     on_change=lambda e: change_text(e.value, path="match_info\match_round.txt"),
+    # )
+    # player_1_input = ui.input(
+    #     label="Player 1",
+    #     on_change=lambda e: change_text(
+    #         e.value, path="match_info\player_1_gamertag.txt"
+    #     ),
+    # )
+    # player_1_score = ui.number(
+    #     "P1 Score",
+    #     min=0,
+    #     precision=0,
+    #     value=0,
+    #     on_change=lambda e: mutate_score(
+    #         p1_score=int(e.value),
+    #         p2_score=int(player_2_score.value),
+    #         player_1=player_1_input.value,
+    #         player_2=player_2_input.value,
+    #         player = 1,
+    #         path="match_info\player_1_score.txt",
+    #         match_button=grab_match_button,
+    #     ),
+    # )
+
+    # player_2_input = ui.input(
+    #     label="Player 2",
+    #     on_change=lambda e: change_text(
+    #         e.value, path="match_info\player_2_gamertag.txt"
+    #     ),
+    # )
+
+    # player_2_score = ui.number(
+    #     "P2 Score",
+    #     min=0,
+    #     precision=0,
+    #     value=0,
+    #     on_change=lambda e: mutate_score(
+    #         p1_score=int(player_1_score.value),
+    #         p2_score=int(e.value),
+    #         player = 2,
+    #         player_1=player_1_input.value,
+    #         player_2=player_2_input.value,
+    #         path="match_info\player_2_score.txt",
+    #         match_button=grab_match_button,
+    #     ),
+    # )
+    # grab_match_button = ui.button(
+    #     "Grab Matches",
+    #     on_click=lambda e: get_scoreboard_data(
+    #         e.sender,
+    #         report_score_button,
+    #         slug_input.value,
+    #         round,
+    #         player_1_input,
+    #         player_1_score,
+    #         player_2_input,
+    #         player_2_score,
+    #         stream_select,
+    #     ),
+    # )
+    # swap_button = ui.button(
+    #     "Swap Players",
+    #     on_click=lambda: swap_player_ui(
+    #         round,
+    #         player_1_input,
+    #         player_1_score,
+    #         player_2_input,
+    #         player_2_score,
+    #         grab_match_button,
+    #     ),
+    # )
+
+    # report_score_button = ui.button("Report Score", on_click=lambda e: report_score())
+
+    # if grab_match_button.enabled == True:
+    #     report_score_button.disable()
+    # else:
+    #     report_score_button.enable()
 
     event_select.disable()
     phase_select.disable()
     stream_select.disable()
+
+    # Styling stuff
+    ui.dark_mode().enable()
+    ui.colors(primary="#8d0ebf")
 
 
 if __name__ in {"__main__", "__mp_main__"}:
