@@ -8,6 +8,7 @@ from queries import *
 from query_parser import *
 from writer import (
     bracket_writer,
+    mutation_writer,
     scoreboard_json_writer,
     scoreboard_writer,
 )
@@ -225,21 +226,6 @@ async def change_text(input, path):
     return
 
 
-def swap_files(file1_path, file2_path):
-    temp_file_path = file1_path + ".tmp"
-    shutil.move(file1_path, temp_file_path)
-    shutil.move(file2_path, file1_path)
-    shutil.move(temp_file_path, file2_path)
-
-
-def swap_player_files():
-    swap_files("match_info/player_1_gamertag.txt", "match_info/player_2_gamertag.txt")
-    swap_files("match_info/player_1_score.txt", "match_info/player_2_score.txt")
-    swap_files("match_info/player_1_id.txt", "match_info/player_2_id.txt")
-    swap_files("match_info/player_1_state.png", "match_info/player_2_state.png")
-    swap_files("match_info/player_1_country.png", "match_info/player_2_country.png")
-
-
 def get_set(set_id):
     set_vars = {"setId": set_id}
     set_payload = {"query": SET_QUERY, "variables": set_vars}
@@ -283,42 +269,6 @@ def get_scoreboard(stream_name):
     print("no streamed matches")
 
 
-async def get_scoreboard_data(
-    match_button,
-    round,
-    player_1_input,
-    player_1_score,
-    player_2_input,
-    player_2_score,
-    stream_select,
-):
-
-    if stream_select.value == [] or stream_select.value == 0:
-        ui.notify("No Matches Available")
-        return
-
-    # try:
-    
-    scoreboard = get_scoreboard(stream_select.value)
-    print(scoreboard)
-    await write_players_json(
-        scoreboard,
-        round,
-        player_1_input,
-        player_1_score,
-        player_2_input,
-        player_2_score,
-    )
-
-    match_button.disable()
-    round.disable()
-    player_1_input.disable()
-    player_2_input.disable()
-    # except:
-    # ui.notify("No Matches Available")
-    # return
-
-
 async def swap_player_ui(
     round, player_1_input, player_1_score, player_2_input, player_2_score, match_button
 ):
@@ -338,9 +288,15 @@ async def swap_player_ui(
     else:
         swap_player_files()
 
-        player_1_input.value, player_2_input.value =  player_2_input.value, player_1_input.value
-        
-        player_1_score.value, player_2_score.value =  player_2_score.value, player_1_score.value
+        player_1_input.value, player_2_input.value = (
+            player_2_input.value,
+            player_1_input.value,
+        )
+
+        player_1_score.value, player_2_score.value = (
+            player_2_score.value,
+            player_1_score.value,
+        )
 
         player_1_score.update()
         player_1_input.update()
@@ -351,7 +307,7 @@ async def swap_player_ui(
 async def write_players_json(
     scoreboard, round, player_1_input, player_1_score, player_2_input, player_2_score
 ):
-    
+
     player_1 = scoreboard["players"][0]
     player_2 = scoreboard["players"][1]
     round.value = scoreboard["round"]
@@ -367,29 +323,36 @@ async def write_players_json(
     player_2_score.update()
 
 
+async def mutate_score(
+    p1_score, p2_score, player_1, player_2, player, path, match_button: ui.button
+):
+    print(p1_score)
+    print(p2_score)
+    print(player)
+    if match_button.enabled == True:
+        input = p1_score if player == 1 else p2_score
+        await change_text(input, path)
+        return
+    else:
+        mutation_vars = await mutation_writer(p1_score, p2_score, player_1, player_2)
+        await send_mutation(mutation_vars)
+
+
+async def send_mutation(mutation_vars):
+    
+    # don't send a mutation if they just swapped
+    if mutation_vars == 0:
+        return
+    mutation_payload = {"query": SCOREBOARD_MUTATION, "variables": mutation_vars}
+    async with httpx.AsyncClient() as client:
+        response = await client.post(url=API_URL, json=mutation_payload, headers=HEADER)
+        print(json.dumps(response.json(), indent=2))
+
+
 async def change_text(input, path):
     with open(path, "w") as file:
         file.write(str(input))
     return
-
-
-def get_scoreboard(stream_name):
-
-    tourney_slug = "tournament/py-testing-tourney-2"
-    stream_vars = {"tourneySlug": tourney_slug}
-    stream_payload = {"query": STREAM_QUERY, "variables": stream_vars}
-
-    stream_response = requests.post(url=API_URL, json=stream_payload, headers=HEADER)
-
-    stream_data = stream_parse(stream_response)
-    for stream in stream_data:
-        if stream["stream"]["streamName"] == stream_name:
-            for set in stream["sets"]:
-                if set["state"] == ONGOING:
-                    scoreboard = scoreboard_json_writer(get_set(set["id"]))
-                    scoreboard_writer(scoreboard)
-                    return scoreboard
-    print("no streamed matches")
 
 
 def swap_files(file1_path, file2_path):
