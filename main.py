@@ -48,14 +48,44 @@ set_payload = {"query": SCOREBOARD_MUTATION, "variables": mutation_vars}
 def main():
     ...
 
-    round = ui.input(label="Round", on_change=lambda e: change_text(e.value, path ="match_info\match_round.txt"))
+    round = ui.input(
+        label="Round",
+        on_change=lambda e: change_text(e.value, path="match_info\match_round.txt"),
+    )
     player_1_input = ui.input(
         label="Player 1",
-        on_change=lambda e: change_text(e.value, path="match_info\player_1_gamertag.txt"),
+        on_change=lambda e: change_text(
+            e.value, path="match_info\player_1_gamertag.txt"
+        ),
     )
-    player_1_score = ui.number("P1 Score")
-    player_2_input = ui.input(label="Player 2", on_change=lambda e: change_text(e.value, path ="match_info\player_2_gamertag.txt"))
-    player_2_score = ui.number("P2 Score")
+    player_1_score = ui.number(
+        "P1 Score",
+        min=0,
+        precision=0,
+        value=0,
+        on_change=lambda e: change_text(
+            int(e.value), path="match_info\player_1_score.txt"
+        ),
+    )
+    player_2_input = ui.input(
+        label="Player 2",
+        on_change=lambda e: change_text(
+            e.value,
+            path="match_info\player_2_gamertag.txt",
+            on_change=lambda e: change_text(
+                e.value, path="match_info\player_2_gamertag.txt"
+            ),
+        ),
+    )
+    player_2_score = ui.number(
+        "P2 Score",
+        min=0,
+        precision=0,
+        value=0,
+        on_change=lambda e: change_text(
+            int(e.value), path="match_info\player_2_score.txt"
+        ),
+    )
     grab_matches = ui.button(
         "Grab Matches",
         on_click=lambda e: get_scoreboard_data(
@@ -71,7 +101,6 @@ def main():
     swap_button = ui.button(
         "Swap Players",
         on_click=lambda: swap_player_ui(
-            round,
             player_1_input,
             player_1_score,
             player_2_input,
@@ -79,7 +108,7 @@ def main():
             grab_matches,
         ),
     )
-# #  *Grabbing Events and Phases based on tournament slug
+    # #  *Grabbing Events and Phases based on tournament slug
     slug_input = (
         ui.input(
             label="start.gg tournament slug", placeholder="tournament/tournament-name/"
@@ -118,7 +147,7 @@ def main():
     ui.dark_mode().enable()
     event_select.disable()
     phase_select.disable()
-    stream_select.disable()        
+    stream_select.disable()
     # get_scoreboard('rokyuugamer')
 
     # with open(MATCH_JSON_PATH,"r") as file:
@@ -127,9 +156,6 @@ def main():
     # response = requests.post(url=API_URL, json=set_payload, headers=HEADER)
     # response_json = response.json()
     # print(json.dumps(response_json, indent=2))
-
-
-
 
 
 if __name__ in {"__main__", "__mp_main__"}:
