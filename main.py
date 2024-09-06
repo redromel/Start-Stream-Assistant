@@ -17,12 +17,12 @@ from PIL import Image, ImageDraw, ImageOps
 
 
 # *Testing variables
-# phase_id = 1749308
-# # phase_id = 1276356
-# player_id = 16105
-# slug = 'tournament/genesis-9-1/event/melee-singles'
-# t_slug = 'tournament/py-testing-tourney-2'
-# t_id = 704088
+phase_id = 1749308
+# phase_id = 1276356
+player_id = 16105
+slug = 'tournament/genesis-9-1/event/melee-singles'
+t_slug = 'tournament/py-testing-tourney-2'
+t_id = 704088
 
 # keep iterating through pages until pageInfo = 0 and nodes = []
 vars2 = {"phaseId": phase_id, "page": 1, "perPage": 30}
@@ -96,6 +96,7 @@ def main():
         "Grab Matches",
         on_click=lambda e: get_scoreboard_data(
             e.sender,
+            slug_input.value,
             round,
             player_1_input,
             player_1_score,
@@ -123,13 +124,6 @@ def main():
         .props("size=80")
         .props("rounded outlined dense")
     )
-    slug_input = (
-        ui.input(
-            label="start.gg tournament slug", placeholder="tournament/tournament-name/"
-        )
-        .props("size=80")
-        .props("rounded outlined dense")
-    )
 
     slug_button = ui.button(
         "Submit",
@@ -149,6 +143,13 @@ def main():
         label="Select Phase",
         options=["Insert Slug"],
         on_change=lambda e: get_pools(e, pool_select),
+        value=[],
+    ).classes("w-60")
+
+    pool_select = ui.select(
+        label="Select Pool",
+        options=["Insert Slug"],
+        on_change=lambda e: print(e.value),
         value=[],
     ).classes("w-60")
 

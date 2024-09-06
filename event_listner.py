@@ -164,7 +164,7 @@ async def get_pools(phase_dropdown, pool_dropdown):
     payload = {"query": POOL_QUERY, "variables": vars}
 
     async with httpx.AsyncClient() as client:
-        response = await client.post(url=api_url, json=payload, headers=header)
+        response = await client.post(url=API_URL, json=payload, headers=HEADER)
         phases = pool_parse(response)
         pool_dropdown.set_options(phases, value=list(phases)[0])
         pool_dropdown.enable()
@@ -173,6 +173,7 @@ async def get_pools(phase_dropdown, pool_dropdown):
 
 async def get_scoreboard_data(
     match_button,
+    slug_value,
     round,
     player_1_input,
     player_1_score,
@@ -186,7 +187,7 @@ async def get_scoreboard_data(
         return
 
     try:
-        scoreboard = get_scoreboard(stream_select.value)
+        scoreboard = get_scoreboard(stream_select.value, slug_value)
 
         await write_players_json(
             scoreboard,
@@ -285,18 +286,13 @@ def swap_players():
         return bracket_json
 
 
-def get_scoreboard(stream_name):
+def get_scoreboard(stream_name, slug_value):
 
-    if tournament_id == 0:
-        print("tournament not set")
-        return
-
-    tourney_id = 704088
-    stream_vars = {"tournamentId": tourney_id}
+    tourney_slug = extract_slug(slug_value)
+    stream_vars = {"tourneySlug": tourney_slug}
     stream_payload = {"query": STREAM_QUERY, "variables": stream_vars}
 
     stream_response = requests.post(url=API_URL, json=stream_payload, headers=HEADER)
-
     stream_data = stream_parse(stream_response)
     for stream in stream_data:
         if stream["stream"]["streamName"] == stream_name:
