@@ -298,6 +298,7 @@ async def get_scoreboard_data(
         return
 
     # try:
+    
     scoreboard = get_scoreboard(stream_select.value)
     print(scoreboard)
     await write_players_json(
@@ -353,8 +354,6 @@ async def write_players_json(
     
     player_1 = scoreboard["players"][0]
     player_2 = scoreboard["players"][1]
-    print(player_1)
-    print(player_2)
     round.value = scoreboard["round"]
     player_1_input.value = player_1["gamertag"]
     player_1_score.value = player_1["score"]

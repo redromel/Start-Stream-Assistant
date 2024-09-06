@@ -67,12 +67,11 @@ def main():
             int(e.value), path="match_info\player_1_score.txt"
         ),
     )
-    player_2_input = (
-        ui.input(
-            label="Player 2",
-            on_change=lambda e: change_text(
-                e.value, path="match_info\player_2_gamertag.txt"
-            ),
+
+    player_2_input = ui.input(
+        label="Player 2",
+        on_change=lambda e: change_text(
+            e.value, path="match_info\player_2_gamertag.txt"
         ),
     )
 
