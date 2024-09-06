@@ -9,7 +9,6 @@ import requests
 from event_listner import *
 from queries import *
 from query_parser import *
-from scoreboard import *
 from writer import *
 from nicegui import ui
 from constants import *
@@ -53,10 +52,6 @@ def main():
         label="Round",
         on_change=lambda e: change_text(e.value, path="match_info\match_round.txt"),
     )
-    round = ui.input(
-        label="Round",
-        on_change=lambda e: change_text(e.value, path="match_info\match_round.txt"),
-    )
     player_1_input = ui.input(
         label="Player 1",
         on_change=lambda e: change_text(
@@ -72,16 +67,15 @@ def main():
             int(e.value), path="match_info\player_1_score.txt"
         ),
     )
-    player_2_input = ui.input(
-        label="Player 2",
-        on_change=lambda e: change_text(
-            e.value,
-            path="match_info\player_2_gamertag.txt",
+    player_2_input = (
+        ui.input(
+            label="Player 2",
             on_change=lambda e: change_text(
                 e.value, path="match_info\player_2_gamertag.txt"
             ),
         ),
     )
+
     player_2_score = ui.number(
         "P2 Score",
         min=0,
@@ -106,6 +100,7 @@ def main():
     swap_button = ui.button(
         "Swap Players",
         on_click=lambda: swap_player_ui(
+            round,
             player_1_input,
             player_1_score,
             player_2_input,

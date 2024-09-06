@@ -10,7 +10,6 @@ from writer import (
     bracket_writer,
     scoreboard_json_writer,
     scoreboard_writer,
-
 )
 import time
 from nicegui import ui
@@ -135,6 +134,7 @@ async def get_phases(event_dropdown, phase_dropdown):
         phase_dropdown.enable()
         return
 
+
 async def get_scoreboard_data(
     match_button,
     round,
@@ -153,7 +153,12 @@ async def get_scoreboard_data(
         scoreboard = get_scoreboard(stream_select.value)
 
         await write_players_json(
-            scoreboard, round, player_1_input, player_1_score, player_2_input, player_2_score
+            scoreboard,
+            round,
+            player_1_input,
+            player_1_score,
+            player_2_input,
+            player_2_score,
         )
 
         match_button.disable()
@@ -211,12 +216,14 @@ async def write_players_json(
     player_2_input.update()
     player_2_score.update()
 
+
 async def change_text(input, path):
-    
+
     print(type(input))
     with open(path, "w") as file:
         file.write(str(input))
     return
+
 
 def swap_files(file1_path, file2_path):
     temp_file_path = file1_path + ".tmp"
@@ -224,13 +231,15 @@ def swap_files(file1_path, file2_path):
     shutil.move(file2_path, file1_path)
     shutil.move(temp_file_path, file2_path)
 
+
 def swap_player_files():
     swap_files("match_info/player_1_gamertag.txt", "match_info/player_2_gamertag.txt")
     swap_files("match_info/player_1_score.txt", "match_info/player_2_score.txt")
     swap_files("match_info/player_1_id.txt", "match_info/player_2_id.txt")
     swap_files("match_info/player_1_state.png", "match_info/player_2_state.png")
     swap_files("match_info/player_1_country.png", "match_info/player_2_country.png")
-    
+
+
 def get_set(set_id):
     set_vars = {"setId": set_id}
     set_payload = {"query": SET_QUERY, "variables": set_vars}
@@ -240,15 +249,20 @@ def get_set(set_id):
     data = response_json.get("data")
     return data
 
+
 def swap_players():
-    with open(MATCH_JSON_PATH,"r") as file:
+    with open(MATCH_JSON_PATH, "r") as file:
         bracket_json = json.load(file)
-        bracket_json['players'][0] , bracket_json['players'][1] = bracket_json['players'][1] , bracket_json['players'][0]
-    
-    with open(MATCH_JSON_PATH,"w") as file:
+        bracket_json["players"][0], bracket_json["players"][1] = (
+            bracket_json["players"][1],
+            bracket_json["players"][0],
+        )
+
+    with open(MATCH_JSON_PATH, "w") as file:
         file.write(json.dumps(bracket_json))
         scoreboard_writer(bracket_json)
         return bracket_json
+
 
 def get_scoreboard(stream_name):
 
@@ -269,4 +283,126 @@ def get_scoreboard(stream_name):
     print("no streamed matches")
 
 
+async def get_scoreboard_data(
+    match_button,
+    round,
+    player_1_input,
+    player_1_score,
+    player_2_input,
+    player_2_score,
+    stream_select,
+):
 
+    if stream_select.value == [] or stream_select.value == 0:
+        ui.notify("No Matches Available")
+        return
+
+    # try:
+    scoreboard = get_scoreboard(stream_select.value)
+    print(scoreboard)
+    await write_players_json(
+        scoreboard,
+        round,
+        player_1_input,
+        player_1_score,
+        player_2_input,
+        player_2_score,
+    )
+
+    match_button.disable()
+    round.disable()
+    player_1_input.disable()
+    player_2_input.disable()
+    # except:
+    # ui.notify("No Matches Available")
+    # return
+
+
+async def swap_player_ui(
+    round, player_1_input, player_1_score, player_2_input, player_2_score, match_button
+):
+
+    if match_button.enabled == False:
+        scoreboard = swap_players()
+        await write_players_json(
+            scoreboard,
+            round,
+            player_1_input,
+            player_1_score,
+            player_2_input,
+            player_2_score,
+        )
+
+        return
+    else:
+        swap_player_files()
+
+        player_1_input.value, player_2_input.value =  player_2_input.value, player_1_input.value
+        
+        player_1_score.value, player_2_score.value =  player_2_score.value, player_1_score.value
+
+        player_1_score.update()
+        player_1_input.update()
+        player_2_score.update()
+        player_2_input.update()
+
+
+async def write_players_json(
+    scoreboard, round, player_1_input, player_1_score, player_2_input, player_2_score
+):
+    
+    player_1 = scoreboard["players"][0]
+    player_2 = scoreboard["players"][1]
+    print(player_1)
+    print(player_2)
+    round.value = scoreboard["round"]
+    player_1_input.value = player_1["gamertag"]
+    player_1_score.value = player_1["score"]
+    player_2_input.value = player_2["gamertag"]
+    player_2_score.value = player_2["score"]
+
+    round.update()
+    player_1_input.update()
+    player_1_score.update()
+    player_2_input.update()
+    player_2_score.update()
+
+
+async def change_text(input, path):
+    with open(path, "w") as file:
+        file.write(str(input))
+    return
+
+
+def get_scoreboard(stream_name):
+
+    tourney_slug = "tournament/py-testing-tourney-2"
+    stream_vars = {"tourneySlug": tourney_slug}
+    stream_payload = {"query": STREAM_QUERY, "variables": stream_vars}
+
+    stream_response = requests.post(url=API_URL, json=stream_payload, headers=HEADER)
+
+    stream_data = stream_parse(stream_response)
+    for stream in stream_data:
+        if stream["stream"]["streamName"] == stream_name:
+            for set in stream["sets"]:
+                if set["state"] == ONGOING:
+                    scoreboard = scoreboard_json_writer(get_set(set["id"]))
+                    scoreboard_writer(scoreboard)
+                    return scoreboard
+    print("no streamed matches")
+
+
+def swap_files(file1_path, file2_path):
+    temp_file_path = file1_path + ".tmp"
+    shutil.move(file1_path, temp_file_path)
+    shutil.move(file2_path, file1_path)
+    shutil.move(temp_file_path, file2_path)
+
+
+def swap_player_files():
+    swap_files("match_info/player_1_gamertag.txt", "match_info/player_2_gamertag.txt")
+    swap_files("match_info/player_1_score.txt", "match_info/player_2_score.txt")
+    swap_files("match_info/player_1_id.txt", "match_info/player_2_id.txt")
+    swap_files("match_info/player_1_state.png", "match_info/player_2_state.png")
+    swap_files("match_info/player_1_country.png", "match_info/player_2_country.png")

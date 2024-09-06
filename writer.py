@@ -230,3 +230,72 @@ def is_final_phase(set_data):
     if phase_number <= TOTAL_PHASES:
         return True
     return False
+
+def scoreboard_json_writer(set_data):
+
+    bracket_data = {}
+    players = []
+    path = "match_info/"
+
+    if os.path.exists(path) == False:
+        os.mkdir(path)
+
+    if is_final_phase(set_data) == False:
+        round = set_data["set"]["phaseGroup"]["phase"]["name"]
+    else:
+        round = set_data["set"]["fullRoundText"]
+
+    bracket_data["id"] = set_data["set"]["id"]
+    bracket_data["round"] = round
+
+    player_count = 1
+    for player_info in set_data["set"]["slots"]:
+        player = player_info_builder(player_info, round, player_count)
+        players.append(player)
+        player_count = 1 + player_count
+
+    bracket_data["players"] = players
+    bracket_json = json.dumps(bracket_data)
+
+    f = open(path + "/bracket_data.json", "w")
+    f.write(bracket_json)
+    f.close()
+
+    return bracket_data
+
+
+def scoreboard_writer(bracket_json):
+
+    path = "match_info/"
+
+    if os.path.exists(path) == False:
+        os.mkdir(path)
+
+    for match_data in bracket_json:
+        match_path = path + "match_" + str(match_data) + ".txt"
+
+        if not isinstance(bracket_json[match_data], list):
+            f = open(match_path, "w")
+            f.write(str(bracket_json[match_data]))
+            f.close()
+
+        else:
+
+            player_count = 0
+            for players in bracket_json[match_data]:
+                player_count = player_count + 1
+                for player_data in players:
+                    player_path = (
+                        path + "player_" + str(player_count) + "_" + player_data
+                    )
+
+                    if player_data == "state" or player_data == "country":
+                        get_flag(players[player_data], player_path, player_data)
+
+                    else:
+                        f = open(str(player_path + ".txt"), "w")
+                        f.write(str(players[player_data]))
+                        f.close()
+
+    return
+
