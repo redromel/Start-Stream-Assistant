@@ -6,6 +6,7 @@ from constants import *
 from queries import PLAYER_QUERY
 from query_parser import player_parse
 import shutil
+from PIL import Image
 
 
 def bracket_writer(set_data, setup=False):
@@ -83,9 +84,11 @@ def scoreboard_json_writer(set_data):
     bracket_data["id"] = set_data["set"]["id"]
     bracket_data["round"] = round
 
+    player_count = 1
     for player_info in set_data["set"]["slots"]:
-        player = player_info_builder(player_info)
+        player = player_info_builder(player_info, round, player_count)
         players.append(player)
+        player_count = 1 + player_count
 
     bracket_data["players"] = players
     bracket_json = json.dumps(bracket_data)
@@ -94,95 +97,58 @@ def scoreboard_json_writer(set_data):
     f.write(bracket_json)
     f.close()
 
-    return bracket_json
+    return bracket_data
 
 
 def scoreboard_writer(bracket_json):
 
-    bracket_data = json.loads(bracket_json)
     path = "match_info/"
 
     if os.path.exists(path) == False:
         os.mkdir(path)
 
-    for match_data in bracket_data:
+    for match_data in bracket_json:
         match_path = path + "match_" + str(match_data) + ".txt"
 
-        if not isinstance(bracket_data[match_data], list):
+        if not isinstance(bracket_json[match_data], list):
             f = open(match_path, "w")
-            f.write(str(bracket_data[match_data]))
+            f.write(str(bracket_json[match_data]))
             f.close()
 
         else:
 
             player_count = 0
-            for players in bracket_data[match_data]:
+            for players in bracket_json[match_data]:
                 player_count = player_count + 1
                 for player_data in players:
                     player_path = (
-                        path
-                        + "player_"
-                        + str(player_count)
-                        + "_"
-                        + player_data
+                        path + "player_" + str(player_count) + "_" + player_data
                     )
 
                     if player_data == "state" or player_data == "country":
-                      get_flag(players[player_data], player_path, player_data)
+                        get_flag(players[player_data], player_path, player_data)
 
-                        
-                        
                     else:
-                      f = open(str(player_path + ".txt"), "w")
-                      f.write(str(players[player_data]))
-                      f.close()
+                        f = open(str(player_path + ".txt"), "w")
+                        f.write(str(players[player_data]))
+                        f.close()
 
     return
 
 
-def get_flag(location, destination_path, location_type):
-    if location == None:
-      f = open(str(destination_path + ".txt"), "w")
-      f.write("None")
-      f.close()
-      return
+def swap_players():
+    with open(MATCH_JSON_PATH,"r") as file:
+        bracket_json = json.load(file)
+        bracket_json['players'][0] , bracket_json['players'][1] = bracket_json['players'][1] , bracket_json['players'][0]
     
-    # prioritizes state before country
-    flag_path = "state_flags_rounded/" + str(location).lower() + ".png"
-    
-    if location_type == 'state':
-      flag_path = "state_flags_rounded/" + str(location).lower() + ".png"
-    if location_type == 'country':
-      code = get_code(location)
-      
-      flag_path = "country_flags_rounded/" + str(code).lower() + ".png"
-  
-    shutil.copy(flag_path,str(destination_path + ".png"))
+    with open(MATCH_JSON_PATH,"w") as file:
+        file.write(json.dumps(bracket_json))
+        scoreboard_writer(bracket_json)
+        return bracket_json
     
 
-def get_code(country):
-  
-  with open("countries.json","r") as file:
-    countries_data = json.load(file)
 
-  for countries in countries_data:
-    if str(countries["name"]).lower() == str(country).lower():
-      return str(countries["code"]).lower()
-  
-  
-  
-
-
-
-
-def is_final_phase(set_data):
-    phase_number = set_data["set"]["phaseGroup"]["phase"]["phaseOrder"]
-    if phase_number <= TOTAL_PHASES:
-        return True
-    return False
-
-
-def player_info_builder(entrant_data):
+def player_info_builder(entrant_data, round, player_count):
     player = {}
     if entrant_data["entrant"]["participants"][0]["user"] != None:
         player_id = entrant_data["entrant"]["participants"][0]["user"]["player"]["id"]
@@ -210,6 +176,10 @@ def player_info_builder(entrant_data):
         if player["score"] == None:
             player["score"] = 0
 
+    # If coming from Losers Bracket Grand Finals
+    if round == 'Grand Final' and player_count == 2:
+        player["gamertag"] = entrant_data["entrant"]["name"] + " [L]"
+
     return player
 
 
@@ -220,3 +190,51 @@ def get_player(player_id):
     player_response = requests.post(url=API_URL, json=player_payload, headers=HEADER)
 
     return player_response
+    
+def get_flag(location, destination_path, location_type):
+    
+    flag_path = "state_flags_rounded/" + str(location).lower() + ".png"
+    
+    
+    
+    if location == None:
+        transparent_image = Image.new('RGBA', (300,300), (0,0,0,0))
+        transparent_image.save(str(destination_path + ".png"))
+        return
+
+    # prioritizes state before country
+
+    if location_type == "state":
+        flag_path = "state_flags_rounded/" + str(location).lower() + ".png"
+    if location_type == "country":
+        code = get_code(location)
+
+        flag_path = "country_flags_rounded/" + str(code).lower() + ".png"
+
+    shutil.copy(flag_path, str(destination_path + ".png"))
+
+def set_flag(input):
+    if input == 'state':
+        ...
+    if input == 'country':
+        ...
+    
+
+def load_custom_flag(path, player_id):
+    ...
+
+def get_code(country):
+
+    with open("countries.json", "r") as file:
+        countries_data = json.load(file)
+
+    for countries in countries_data:
+        if str(countries["name"]).lower() == str(country).lower():
+            return str(countries["code"]).lower()
+
+
+def is_final_phase(set_data):
+    phase_number = set_data["set"]["phaseGroup"]["phase"]["phaseOrder"]
+    if phase_number <= TOTAL_PHASES:
+        return True
+    return False
