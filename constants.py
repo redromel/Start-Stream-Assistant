@@ -14,3 +14,4 @@ KEY = os.getenv('smashgg_api')
 API_URL = 'https://api.start.gg/gql/alpha'
 HEADER = {"Authorization": "Bearer " + KEY, 'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}
 MATCH_JSON_PATH = 'match_info/bracket_data.json'
+MATCH_MUTATION_PATH = 'match_info/match_mutation.json'

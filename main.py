@@ -58,14 +58,44 @@ def main():
             e.value, path="match_info\player_1_gamertag.txt"
         ),
     )
-    player_1_score = ui.number("P1 Score")
+    player_1_score = ui.number(
+        "P1 Score",
+        min=0,
+        precision=0,
+        value=0,
+        on_change=lambda e: mutate_score(
+            p1_score=int(e.value),
+            p2_score=int(player_2_score.value),
+            player_1=player_1_input.value,
+            player_2=player_2_input.value,
+            player = 1,
+            path="match_info\player_1_score.txt",
+            match_button=grab_matches,
+        ),
+    )
+
     player_2_input = ui.input(
         label="Player 2",
         on_change=lambda e: change_text(
             e.value, path="match_info\player_2_gamertag.txt"
         ),
     )
-    player_2_score = ui.number("P2 Score")
+
+    player_2_score = ui.number(
+        "P2 Score",
+        min=0,
+        precision=0,
+        value=0,
+        on_change=lambda e: mutate_score(
+            p1_score=int(player_1_score.value),
+            p2_score=int(e.value),
+            player = 2,
+            player_1=player_1_input.value,
+            player_2=player_2_input.value,
+            path="match_info\player_2_score.txt",
+            match_button=grab_matches,
+        ),
+    )
     grab_matches = ui.button(
         "Grab Matches",
         on_click=lambda e: get_scoreboard_data(

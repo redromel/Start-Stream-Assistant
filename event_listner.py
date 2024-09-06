@@ -6,7 +6,12 @@ import os
 from constants import *
 from queries import *
 from query_parser import *
-from writer import bracket_writer, scoreboard_json_writer, scoreboard_writer, swap_players
+from writer import (
+    bracket_writer,
+    mutation_writer,
+    scoreboard_json_writer,
+    scoreboard_writer,
+)
 import time
 from nicegui import ui
 import requests
@@ -163,6 +168,96 @@ async def get_pools(phase_dropdown, pool_dropdown):
         return
 
 
+async def get_scoreboard_data(
+    match_button,
+    round,
+    player_1_input,
+    player_1_score,
+    player_2_input,
+    player_2_score,
+    stream_select,
+):
+
+    if stream_select.value == [] or stream_select.value == 0:
+        ui.notify("No Matches Available 1")
+        return
+
+    try:
+        scoreboard = get_scoreboard(stream_select.value)
+
+        await write_players_json(
+            scoreboard,
+            round,
+            player_1_input,
+            player_1_score,
+            player_2_input,
+            player_2_score,
+        )
+
+        match_button.disable()
+        round.disable()
+        player_1_input.disable()
+        player_2_input.disable()
+    except:
+        ui.notify("No Matches Available")
+        return
+
+
+async def swap_player_ui(
+    player_1_input, player_1_score, player_2_input, player_2_score, match_button
+):
+
+    if match_button.enabled == False:
+        scoreboard = swap_players()
+        write_players_json(
+            scoreboard, player_1_input, player_1_score, player_2_input, player_2_score
+        )
+
+        return
+    else:
+        swap_player_files()
+
+        player_1_input.value, player_2_input.value = (
+            player_2_input.value,
+            player_1_input.value,
+        )
+        player_1_score.value, player_2_score.value = (
+            player_2_score.value,
+            player_1_score.value,
+        )
+
+        player_1_score.update()
+        player_1_input.update()
+        player_2_score.update()
+        player_2_input.update()
+
+
+async def write_players_json(
+    scoreboard, round, player_1_input, player_1_score, player_2_input, player_2_score
+):
+    player_1 = scoreboard["players"][0]
+    player_2 = scoreboard["players"][1]
+    round.value = scoreboard["round"]
+    player_1_input.value = player_1["gamertag"]
+    player_1_score.value = player_1["score"]
+    player_2_input.value = player_2["gamertag"]
+    player_2_score.value = player_2["score"]
+
+    round.update()
+    player_1_input.update()
+    player_1_score.update()
+    player_2_input.update()
+    player_2_score.update()
+
+
+async def change_text(input, path):
+
+    print(type(input))
+    with open(path, "w") as file:
+        file.write(str(input))
+    return
+
+
 def get_set(set_id):
     set_vars = {"setId": set_id}
     set_payload = {"query": SET_QUERY, "variables": set_vars}
@@ -171,6 +266,20 @@ def get_set(set_id):
     response_json = set_response.json()
     data = response_json.get("data")
     return data
+
+
+def swap_players():
+    with open(MATCH_JSON_PATH, "r") as file:
+        bracket_json = json.load(file)
+        bracket_json["players"][0], bracket_json["players"][1] = (
+            bracket_json["players"][1],
+            bracket_json["players"][0],
+        )
+
+    with open(MATCH_JSON_PATH, "w") as file:
+        file.write(json.dumps(bracket_json))
+        scoreboard_writer(bracket_json)
+        return bracket_json
 
 
 def get_scoreboard(stream_name):
@@ -192,53 +301,45 @@ def get_scoreboard(stream_name):
     print("no streamed matches")
 
 
-async def get_scoreboard_data(
-    match_button, round, player_1_input, player_1_score, player_2_input, player_2_score, stream_select
-):
-    
-    if stream_select.value == [] or stream_select.value == 0:
-        ui.notify("No Matches Available")
-        return
-
-    try:    
-        scoreboard = get_scoreboard(stream_select.value)
-
-        write_players_json(scoreboard, player_1_input, player_1_score, player_2_input, player_2_score)
-        
-        match_button.disable()
-        round.disable()
-        player_1_input.disable()
-        player_2_input.disable()
-    except:
-        ui.notify("No Matches Available")
-        return
-
-
 async def swap_player_ui(
     round, player_1_input, player_1_score, player_2_input, player_2_score, match_button
 ):
 
     if match_button.enabled == False:
         scoreboard = swap_players()
-        write_players_json(scoreboard, player_1_input, player_1_score, player_2_input, player_2_score)
-
-        
+        await write_players_json(
+            scoreboard,
+            round,
+            player_1_input,
+            player_1_score,
+            player_2_input,
+            player_2_score,
+        )
 
         return
     else:
         swap_player_files()
-        
-        player_1_input.value, player_2_input.value = player_2_input.value, player_1_input.value
-        player_1_score.value, player_2_score.value = player_2_score.value, player_1_score.value
-        
+
+        player_1_input.value, player_2_input.value = (
+            player_2_input.value,
+            player_1_input.value,
+        )
+
+        player_1_score.value, player_2_score.value = (
+            player_2_score.value,
+            player_1_score.value,
+        )
+
         player_1_score.update()
         player_1_input.update()
         player_2_score.update()
         player_2_input.update()
-            
-    
 
-async def write_players_json(scoreboard, player_1_input, player_1_score, player_2_input, player_2_score):
+
+async def write_players_json(
+    scoreboard, round, player_1_input, player_1_score, player_2_input, player_2_score
+):
+
     player_1 = scoreboard["players"][0]
     player_2 = scoreboard["players"][1]
     round.value = scoreboard["round"]
@@ -246,8 +347,7 @@ async def write_players_json(scoreboard, player_1_input, player_1_score, player_
     player_1_score.value = player_1["score"]
     player_2_input.value = player_2["gamertag"]
     player_2_score.value = player_2["score"]
-    
-    
+
     round.update()
     player_1_input.update()
     player_1_score.update()
@@ -255,17 +355,44 @@ async def write_players_json(scoreboard, player_1_input, player_1_score, player_
     player_2_score.update()
 
 
-def swap_files(file1_path, file2_path):
-    temp_file_path = file1_path + '.tmp'
-    shutil.move(file1_path, temp_file_path)
-    shutil.move(file2_path, file1_path)
-    shutil.move(temp_file_path, file2_path)
+async def mutate_score(
+    p1_score, p2_score, player_1, player_2, player, path, match_button: ui.button
+):
+    print(p1_score)
+    print(p2_score)
+    print(player)
+    if match_button.enabled == True:
+        input = p1_score if player == 1 else p2_score
+        await change_text(input, path)
+        return
+    else:
+        mutation_vars = await mutation_writer(p1_score, p2_score, player_1, player_2)
+        await send_mutation(mutation_vars)
+
+
+async def send_mutation(mutation_vars):
     
-    
+    # don't send a mutation if they just swapped
+    if mutation_vars == 0:
+        return
+    mutation_payload = {"query": SCOREBOARD_MUTATION, "variables": mutation_vars}
+    async with httpx.AsyncClient() as client:
+        response = await client.post(url=API_URL, json=mutation_payload, headers=HEADER)
+        print(json.dumps(response.json(), indent=2))
+
+
 async def change_text(input, path):
     with open(path, "w") as file:
         file.write(str(input))
     return
+
+
+def swap_files(file1_path, file2_path):
+    temp_file_path = file1_path + ".tmp"
+    shutil.move(file1_path, temp_file_path)
+    shutil.move(file2_path, file1_path)
+    shutil.move(temp_file_path, file2_path)
+
 
 def swap_player_files():
     swap_files("match_info/player_1_gamertag.txt", "match_info/player_2_gamertag.txt")
