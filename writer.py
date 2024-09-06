@@ -5,6 +5,7 @@ import requests
 from constants import *
 from queries import PLAYER_QUERY
 from query_parser import player_parse
+import shutil
 
 
 def bracket_writer(set_data, setup=False):
@@ -67,65 +68,111 @@ def bracket_writer(set_data, setup=False):
 
 def scoreboard_json_writer(set_data):
 
-
     bracket_data = {}
     players = []
     path = "match_info/"
-    player_count = 1
-    
+
     if os.path.exists(path) == False:
-      os.mkdir(path)
-      
-    if is_final_phase(set_data) == False:
-      round = set_data["set"]["phaseGroup"]["phase"]["name"]
-    else:
-      round = set_data["set"]["fullRoundText"]
-      
-    bracket_data["id"] = set_data["set"]["id"]
-    bracket_data["round"] = round
-          
-    for player_info in set_data["set"]["slots"]:
-        player = player_info_builder(player_info)
-        players.append(player)
-
-    bracket_data["players"] = players
-
-    
-    f = open(path + "/bracket_data.json", "w")
-    f.write(json.dumps(bracket_data))
-    f.close()
-
-    return bracket_data
-  
-
-def scoreboard_writer(set_data):
-
-
-    path = "match_info/"
-    player_count = 1
+        os.mkdir(path)
 
     if is_final_phase(set_data) == False:
         round = set_data["set"]["phaseGroup"]["phase"]["name"]
     else:
         round = set_data["set"]["fullRoundText"]
 
-    f = open(path + "/round.txt", "w")
-    f.write(str(round))
-    f.close()
+    bracket_data["id"] = set_data["set"]["id"]
+    bracket_data["round"] = round
 
     for player_info in set_data["set"]["slots"]:
-
-        player_path = path + "/player_" + str(player_count) + "_"
         player = player_info_builder(player_info)
+        players.append(player)
 
-        for info in player:
-            f = open(player_path + info + ".txt", "w")
-            f.write(str(player[info]))
+    bracket_data["players"] = players
+    bracket_json = json.dumps(bracket_data)
+
+    f = open(path + "/bracket_data.json", "w")
+    f.write(bracket_json)
+    f.close()
+
+    return bracket_json
+
+
+def scoreboard_writer(bracket_json):
+
+    bracket_data = json.loads(bracket_json)
+    path = "match_info/"
+
+    if os.path.exists(path) == False:
+        os.mkdir(path)
+
+    for match_data in bracket_data:
+        match_path = path + "match_" + str(match_data) + ".txt"
+
+        if not isinstance(bracket_data[match_data], list):
+            f = open(match_path, "w")
+            f.write(str(bracket_data[match_data]))
             f.close()
 
-        player_count = player_count + 1
+        else:
+
+            player_count = 0
+            for players in bracket_data[match_data]:
+                player_count = player_count + 1
+                for player_data in players:
+                    player_path = (
+                        path
+                        + "player_"
+                        + str(player_count)
+                        + "_"
+                        + player_data
+                    )
+
+                    if player_data == "state" or player_data == "country":
+                      get_flag(players[player_data], player_path, player_data)
+
+                        
+                        
+                    else:
+                      f = open(str(player_path + ".txt"), "w")
+                      f.write(str(players[player_data]))
+                      f.close()
 
     return
+
+
+def get_flag(location, destination_path, location_type):
+    if location == None:
+      f = open(str(destination_path + ".txt"), "w")
+      f.write("None")
+      f.close()
+      return
+    
+    # prioritizes state before country
+    flag_path = "state_flags_rounded/" + str(location).lower() + ".png"
+    
+    if location_type == 'state':
+      flag_path = "state_flags_rounded/" + str(location).lower() + ".png"
+    if location_type == 'country':
+      code = get_code(location)
+      
+      flag_path = "country_flags_rounded/" + str(code).lower() + ".png"
+  
+    shutil.copy(flag_path,str(destination_path + ".png"))
+    
+
+def get_code(country):
+  
+  with open("countries.json","r") as file:
+    countries_data = json.load(file)
+
+  for countries in countries_data:
+    if str(countries["name"]).lower() == str(country).lower():
+      return str(countries["code"]).lower()
+  
+  
+  
+
+
 
 
 def is_final_phase(set_data):
@@ -136,7 +183,6 @@ def is_final_phase(set_data):
 
 
 def player_info_builder(entrant_data):
-    print(json.dumps(entrant_data, indent=2))
     player = {}
     if entrant_data["entrant"]["participants"][0]["user"] != None:
         player_id = entrant_data["entrant"]["participants"][0]["user"]["player"]["id"]

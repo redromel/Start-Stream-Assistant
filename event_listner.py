@@ -154,6 +154,7 @@ def get_scoreboard(stream_name):
         if stream['stream']['streamName'] == stream_name:
             for set in stream['sets']:
                 if set['state'] == ONGOING:
-                    scoreboard_json_writer(get_set(set['id']))
-                    return
+                    scoreboard = scoreboard_json_writer(get_set(set['id']))
+                    scoreboard_writer(scoreboard)
+                    return scoreboard
     print('no streamed matches')

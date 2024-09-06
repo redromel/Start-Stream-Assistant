@@ -1,6 +1,7 @@
 # TODO:  Loser Identifier for Grands
 # TODO:  Better Error Handling when querying
 # TODO:  NiceGUI Implementation for fun
+# TODO:  Custom Flags (AT THE END)
 
 from dotenv import load_dotenv
 import requests
@@ -10,6 +11,8 @@ from query_parser import *
 from writer import *
 from nicegui import ui
 from constants import *
+
+from PIL import Image, ImageDraw, ImageOps
 
 
 # *Testing variables
@@ -41,8 +44,14 @@ mutation_vars = {
 set_payload = {"query": SCOREBOARD_MUTATION, "variables": mutation_vars}
 
 
+
+
+
+    
+
 def main():
     ...
+
 
     get_scoreboard('rokyuugamer')
 
