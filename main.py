@@ -62,11 +62,24 @@ def main():
 
     stream_select = scoreboard.stream_select
     grab_matches_button = scoreboard.grab_match_button
-    player_1_input = scoreboard.player_1_input
-
+    player_1_score = scoreboard.player_1_score
+    player_2_score = scoreboard.player_2_score
+    
+    
     grab_matches_button.on_click(
         lambda e: scoreboard.handle_grab_match_click(
             e, slug=extract_slug(slug_input.value)
+        )
+    )
+
+    player_1_score.on_value_change(
+        lambda e: scoreboard.handle_mutate_score(
+            e, player=1, path="match_info\player_1_score.txt", slug=extract_slug(slug_input.value)
+        )
+    )
+    player_2_score.on_value_change(
+        lambda e: scoreboard.handle_mutate_score(
+            e, player=2, path="match_info\player_2_score.txt", slug=extract_slug(slug_input.value)
         )
     )
 

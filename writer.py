@@ -308,13 +308,9 @@ def scoreboard_writer(bracket_json):
 
 async def mutation_writer(p1_score, p2_score, player_1, player_2):
 
-    print(player_1)
-    print(player_2)
-
     with open(MATCH_JSON_PATH, "r") as file:
         bracket_json = json.load(file)
 
-    print(bracket_json)
     player = bracket_json["players"]
     setId = bracket_json["id"]
     p1_id = player[0]["id"]
@@ -448,28 +444,41 @@ def get_set(set_id):
     response_json = set_response.json()
     data = response_json.get("data")
     return data
-async def mutation_writer(p1_score, p2_score,player_1,player_2):
 
-    print(player_1)
-    print(player_2)
-    
-    
+
+async def score_writer(p1_score, p2_score, player_1, player_2):
     with open(MATCH_JSON_PATH, "r") as file:
         bracket_json = json.load(file)
 
     print(bracket_json)
-    player = bracket_json['players']
-    setId = bracket_json["id"]
-    p1_id = player[0]['id']
-    p2_id = player[1]['id']
-    
-    
-    gameNum = p1_score + p2_score
+    for players in bracket_json["players"]:
+        if player_1 == players["gamertag"]:
+            players["score"] = p1_score
+        if player_2 == players["gamertag"]:
+            players["score"] = p2_score
+            
+            
+    with open(MATCH_JSON_PATH, "w") as file:
+        file.write(json.dumps(bracket_json))
+        scoreboard_writer(bracket_json)
+        print(bracket_json)
+        return bracket_json
 
+
+async def mutation_writer(p1_score, p2_score, player_1, player_2):
+
+    with open(MATCH_JSON_PATH, "r") as file:
+        bracket_json = json.load(file)
+
+    player = bracket_json["players"]
+    setId = bracket_json["id"]
+    p1_id = player[0]["id"]
+    p2_id = player[1]["id"]
+
+    gameNum = p1_score + p2_score
 
     # this would happen due to a name swap
 
-    
     # first game
     if gameNum == 1:
         if p1_score > p2_score:
@@ -488,12 +497,11 @@ async def mutation_writer(p1_score, p2_score,player_1,player_2):
         entrant1Score = 0
         entrant2Score = 1
 
-
     mutation = {}
     mutation["setId"] = setId
     match_data = {}
     mutation["gameData"] = []
-    
+
     if gameNum == 0:
         match_data["gameNum"] = gameNum
         mutation["gameData"].append(match_data)
@@ -504,16 +512,12 @@ async def mutation_writer(p1_score, p2_score,player_1,player_2):
     match_data["entrant1Score"] = entrant1Score
     match_data["entrant2Score"] = entrant2Score
 
-
-
-
-
     # first game, build new json file
     if gameNum == 1:
         mutation["gameData"].append(match_data)
         with open(MATCH_MUTATION_PATH, "w") as file:
             file.write(json.dumps(mutation))
-            
+
         return json.dumps(mutation), setId
 
     else:
@@ -523,27 +527,28 @@ async def mutation_writer(p1_score, p2_score,player_1,player_2):
         mutation = check_mutation_conflicts(mutation_json, match_data, gameNum)
         with open(MATCH_MUTATION_PATH, "w") as file:
             file.write(json.dumps(mutation))
-        
+
         return json.dumps(mutation), setId
-    
+
+
 def win_counter(mutation_json, p1_score, p2_score, p1_id, p2_id):
-    
-    games = mutation_json['gameData']
-    
+
+    games = mutation_json["gameData"]
+
     p1_prev_score = 0
     p2_prev_score = 0
     for game in games:
-        if game['winnerId'] == p1_id:
+        if game["winnerId"] == p1_id:
             p1_prev_score = p1_prev_score + 1
-        if game['winnerId'] == p2_id:
+        if game["winnerId"] == p2_id:
             p2_prev_score = p2_prev_score + 1
-    
+
     if p1_score > p1_prev_score:
         return p1_id
     if p2_score > p2_prev_score:
         return p2_id
-    
-    return 0        
+
+    return 0
 
 
 def check_mutation_conflicts(mutation_json, match_data, gameNum):
@@ -557,11 +562,11 @@ def check_mutation_conflicts(mutation_json, match_data, gameNum):
             matches = match_data
 
     if len(mutation_match_data) > gameNum:
-        to_remove = len(mutation_match_data) - gameNum   
-        
-        for x in range (to_remove):
+        to_remove = len(mutation_match_data) - gameNum
+
+        for x in range(to_remove):
             mutation_match_data.pop()
-        
+
     if len(mutation_match_data) < gameNum:
         mutation_match_data.append(match_data)
     return mutation_json
@@ -588,7 +593,6 @@ def get_player_scores(set_data):
     bracket_data["players"] = players
     bracket_json = json.dumps(bracket_data)
     return bracket_data
-
 
 
 def get_set(set_id):

@@ -379,12 +379,12 @@ async def mutate_score(
 async def send_mutation(mutation_vars):
     
     # don't send a mutation if they just swapped
+    print(mutation_vars)
     if mutation_vars == 0:
         return
     mutation_payload = {"query": SCOREBOARD_MUTATION, "variables": mutation_vars}
     async with httpx.AsyncClient() as client:
         response = await client.post(url=API_URL, json=mutation_payload, headers=HEADER)
-        print(json.dumps(response.json(), indent=2))
 
 
 async def report_score():

@@ -8,7 +8,7 @@
       "genderPronoun": null,
       "state": null,
       "country": "Philippines",
-      "score": 1
+      "score": 5
     },
     {
       "id": 17646353,
@@ -16,7 +16,7 @@
       "genderPronoun": null,
       "state": null,
       "country": null,
-      "score": 2
+      "score": 4
     }
   ]
 }
