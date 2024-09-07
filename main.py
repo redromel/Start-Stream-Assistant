@@ -61,12 +61,12 @@ def main():
     scoreboard = Scoreboard_Components()
 
     stream_select = scoreboard.stream_select
-    grab_matches_button = scoreboard.grab_match_button
+    grab_matches_switch = scoreboard.grab_match_switch
     player_1_score = scoreboard.player_1_score
     player_2_score = scoreboard.player_2_score
     
     
-    grab_matches_button.on_click(
+    grab_matches_switch.on_value_change(
         lambda e: scoreboard.handle_grab_match_click(
             e, slug=extract_slug(slug_input.value)
         )

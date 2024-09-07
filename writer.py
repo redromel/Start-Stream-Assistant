@@ -450,7 +450,6 @@ async def score_writer(p1_score, p2_score, player_1, player_2):
     with open(MATCH_JSON_PATH, "r") as file:
         bracket_json = json.load(file)
 
-    print(bracket_json)
     for players in bracket_json["players"]:
         if player_1 == players["gamertag"]:
             players["score"] = p1_score
@@ -461,7 +460,6 @@ async def score_writer(p1_score, p2_score, player_1, player_2):
     with open(MATCH_JSON_PATH, "w") as file:
         file.write(json.dumps(bracket_json))
         scoreboard_writer(bracket_json)
-        print(bracket_json)
         return bracket_json
 
 

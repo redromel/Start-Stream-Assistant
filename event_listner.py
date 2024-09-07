@@ -47,7 +47,6 @@ def select_disable(select: ui.select):
 
 async def bracket_listner(switch: ui.switch, select: ui.select):
 
-    print(select.value)
     phase_id = select.value
     bracket_vars = {"phaseId": phase_id, "page": 1, "perPage": 15}
     payload = {"query": BRACKET_GRAPHIC_QUERY, "variables": bracket_vars}
@@ -258,7 +257,6 @@ async def write_players_json(
 
 async def change_text(input, path):
 
-    print(type(input))
     with open(path, "w") as file:
         file.write(str(input))
     return
@@ -363,9 +361,7 @@ async def write_players_json(
 async def mutate_score(
     p1_score, p2_score, player_1, player_2, player, path, match_button: ui.button
 ):
-    print(p1_score)
-    print(p2_score)
-    print(player)
+
     if match_button.enabled == True:
         input = p1_score if player == 1 else p2_score
         await change_text(input, path)
@@ -379,7 +375,6 @@ async def mutate_score(
 async def send_mutation(mutation_vars):
     
     # don't send a mutation if they just swapped
-    print(mutation_vars)
     if mutation_vars == 0:
         return
     mutation_payload = {"query": SCOREBOARD_MUTATION, "variables": mutation_vars}
