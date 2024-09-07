@@ -72,16 +72,7 @@ def main():
         )
     )
 
-    player_1_score.on_value_change(
-        lambda e: scoreboard.handle_mutate_score(
-            e, player=1, path="match_info\player_1_score.txt", slug=extract_slug(slug_input.value)
-        )
-    )
-    player_2_score.on_value_change(
-        lambda e: scoreboard.handle_mutate_score(
-            e, player=2, path="match_info\player_2_score.txt", slug=extract_slug(slug_input.value)
-        )
-    )
+
 
     # stream_select = ui.select(
     #     label="Select Stream",

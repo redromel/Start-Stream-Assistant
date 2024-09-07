@@ -58,9 +58,19 @@ class Scoreboard_Components:
         )
 
         self.reset_button = ui.button("Reset")
-        
+
         self.report_score_button = ui.button("Report Score")
-        
+
+        self.player_1_score.on_value_change(
+            lambda e: self.handle_mutate_score(
+                e, player=1, path="match_info\player_1_score.txt"
+            )
+        )
+        self.player_2_score.on_value_change(
+            lambda e: self.handle_mutate_score(
+                e, player=2, path="match_info\player_2_score.txt"
+            )
+        )
 
         self.report_score_button.on_click(self.get_confirm_dialog)
         self.swap_button.on_click(self.handle_swap_player_ui)
@@ -104,7 +114,6 @@ class Scoreboard_Components:
                     )
         confirm.open()
 
-
     async def get_confirm_dialog(self, e):
         await self.get_set(e.sender)
 
@@ -117,8 +126,8 @@ class Scoreboard_Components:
     async def handle_swap_player_ui(self, e):
         await self.swap_player_ui(e.sender)
 
-    async def handle_mutate_score(self, e, player, path, slug):
-        await self.mutate_score(e.sender, player, path, slug)
+    async def handle_mutate_score(self, e, player, path):
+        await self.mutate_score(e.sender, player, path)
 
     async def get_scoreboard_data(self, sender, slug):
 
@@ -168,7 +177,7 @@ class Scoreboard_Components:
             self.player_2_score.update()
             self.player_2_input.update()
 
-    async def mutate_score(self, sender, player, path, slug):
+    async def mutate_score(self, sender, player, path):
 
         p1_score = int(self.player_1_score.value)
         p2_score = int(self.player_2_score.value)
