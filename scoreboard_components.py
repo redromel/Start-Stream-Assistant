@@ -78,6 +78,8 @@ class Scoreboard_Components:
 
         self.report_score_button.disable()
 
+
+
     async def get_set(self, sender):
 
         self.player_1_input.update()
@@ -114,6 +116,8 @@ class Scoreboard_Components:
                     )
         confirm.open()
 
+
+
     async def get_confirm_dialog(self, e):
         await self.get_set(e.sender)
 
@@ -128,6 +132,8 @@ class Scoreboard_Components:
 
     async def handle_mutate_score(self, e, player, path):
         await self.mutate_score(e.sender, player, path)
+
+
 
     async def get_scoreboard_data(self, sender, slug):
 
@@ -177,6 +183,29 @@ class Scoreboard_Components:
             self.player_2_score.update()
             self.player_2_input.update()
 
+    async def lock_scoreboard(self):
+        self.round_input.disable()
+        self.player_1_input.disable()
+        self.player_2_input.disable()
+        self.report_score_button.enable()
+
+    async def unlock_scoreboard(self):
+        self.round_input.enable()
+        self.player_1_input.enable()
+        self.player_2_input.enable()
+        self.report_score_button.disable()
+        self.grab_match_switch.value = False
+
+    async def reset_scoreboard(self):
+
+        if self.grab_match_switch.value == False:
+            self.round_input.value = ""
+            self.player_1_input.value = ""
+            self.player_2_input.value = ""
+        self.player_1_score.value = 0
+        self.player_2_score.value = 0
+
+
     async def mutate_score(self, sender, player, path):
 
         p1_score = int(self.player_1_score.value)
@@ -199,7 +228,6 @@ class Scoreboard_Components:
             await score_writer(p1_score, p2_score, player_1, player_2)
             return
 
-    # Will write the score locally because it conflicts with the swap players function
 
     async def write_players_json(self, scoreboard):
 
@@ -277,28 +305,6 @@ class Scoreboard_Components:
             ui.notify("Set Data Failed to report")
             dialog.close()
             return
-
-    async def lock_scoreboard(self):
-        self.round_input.disable()
-        self.player_1_input.disable()
-        self.player_2_input.disable()
-        self.report_score_button.enable()
-
-    async def unlock_scoreboard(self):
-        self.round_input.enable()
-        self.player_1_input.enable()
-        self.player_2_input.enable()
-        self.report_score_button.disable()
-        self.grab_match_switch.value = False
-
-    async def reset_scoreboard(self):
-
-        if self.grab_match_switch.value == False:
-            self.round_input.value = ""
-            self.player_1_input.value = ""
-            self.player_2_input.value = ""
-        self.player_1_score.value = 0
-        self.player_2_score.value = 0
 
 
 async def change_text(input, path):
