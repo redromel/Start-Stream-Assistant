@@ -3,6 +3,7 @@
 # TODO:  NiceGUI Implementation for fun
 # TODO:  Dropdown Flag Implementation -> State, Coutnry, Custom
 # TODO:  Custom Flags (AT THE END)
+# TODO:  Figure out edge Case where Stream isn't added until later
 
 from dotenv import load_dotenv
 from event_listner import *
@@ -32,8 +33,13 @@ def main():
             e.sender, slug_input, event_select, stream_select
         ),
     )
-    
-    bracket_switch = ui.switch("Bracket Listener", on_change=lambda e: bracket_listner(e.sender, phase_select))
+
+    bracket_switch = ui.switch(
+        "Bracket Listener",
+        on_change=lambda e: bracket_listner(
+            e.sender, phase_select, stream_select, slug_input
+        ),
+    )
 
     event_select = ui.select(
         label="Select Event",
@@ -65,13 +71,11 @@ def main():
     stream_select = scoreboard.stream_select
     grab_matches_switch = scoreboard.grab_match_switch
 
-    
     grab_matches_switch.on_value_change(
         lambda e: scoreboard.handle_grab_match_click(
             e, slug=extract_slug(slug_input.value)
         )
     )
-
 
     event_select.disable()
     phase_select.disable()

@@ -45,7 +45,7 @@ def select_disable(select: ui.select):
         select.enable()
 
 
-async def bracket_listner(switch: ui.switch, select: ui.select):
+async def bracket_listner(switch: ui.switch, select: ui.select, stream,url):
 
     phase_id = select.value
     bracket_vars = {"phaseId": phase_id, "page": 1, "perPage": 15}
@@ -73,6 +73,7 @@ async def bracket_listner(switch: ui.switch, select: ui.select):
 
                     if is_phase_complete(response) == True:
                         break
+                    
                     time.sleep(1)
         finally:
             switch.value = False
@@ -100,6 +101,7 @@ async def get_tourney_info(button, tournament_url, event_dropdown, stream_dropdo
 
     await get_events(button, tournament_url, event_dropdown)
     await get_streamers(stream_dropdown, tournament_url)
+
 
 
 async def get_events(button, input, event_dropdown):
@@ -136,7 +138,6 @@ async def get_streamers(stream_dropdown, tournament_url):
             stream_list = ["No Streamers"]
             stream_dropdown.set_options(stream_list, value=stream_list[0])
             stream_dropdown.disable()
-            print("hello")
             return
         for stream in streams:
             stream_list.append(stream["stream"]["streamName"])
