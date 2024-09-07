@@ -32,6 +32,8 @@ def main():
             e.sender, slug_input, event_select, stream_select
         ),
     )
+    
+    bracket_switch = ui.switch("Bracket Listener", on_change=lambda e: bracket_listner(e.sender, phase_select))
 
     event_select = ui.select(
         label="Select Event",

@@ -5,6 +5,7 @@ def bracket_parse(response):
 
     if response.status_code == 200:
         response_json = response.json()
+        print(json.dumps(response_json,indent=2))
         data = response_json.get('data')
         phase = data.get('phase')
         sets = phase.get('sets')
