@@ -1,1 +1,17 @@
-{"setId": 79388668, "gameData": [{"winnerId": 17665134, "gameNum": 1, "entrant1Score": 1, "entrant2Score": 0}, {"winnerId": 17665134, "gameNum": 2, "entrant1Score": 1, "entrant2Score": 0}, {"winnerId": 17665134, "gameNum": 3, "entrant1Score": 1, "entrant2Score": 0}]}
+{
+  "setId": 79388668,
+  "gameData": [
+    {
+      "winnerId": 17665134,
+      "gameNum": 1,
+      "entrant1Score": 1,
+      "entrant2Score": 0
+    },
+    {
+      "winnerId": 17665134,
+      "gameNum": 2,
+      "entrant1Score": 1,
+      "entrant2Score": 0
+    }
+  ]
+}
