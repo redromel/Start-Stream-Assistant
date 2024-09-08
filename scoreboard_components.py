@@ -18,6 +18,7 @@ class Scoreboard_Components:
             value=[],
         ).classes("w-60")
 
+
         self.round_input = ui.input(
             label="Round",
             on_change=lambda e: change_text(e.value, path="match_info\match_round.txt"),
@@ -29,6 +30,7 @@ class Scoreboard_Components:
                 e.value, path="match_info\player_1_gamertag.txt"
             ),
         )
+
 
         self.player_1_score = ui.number(
             "P1 Score",
@@ -208,26 +210,30 @@ class Scoreboard_Components:
 
     async def mutate_score(self, sender, player, path):
 
-        p1_score = int(self.player_1_score.value)
-        p2_score = int(self.player_2_score.value)
 
-        player_1 = self.player_1_input.value
-        player_2 = self.player_2_input.value
 
-        if self.grab_match_switch.value == False:
-            input = p1_score if player == 1 else p2_score
-            await change_text(input, path)
-            return
+       try: 
+            p1_score = int(self.player_1_score.value)
+            p2_score = int(self.player_2_score.value)
 
-        else:
-            mutation_vars, numId = await mutation_writer(
-                p1_score, p2_score, player_1, player_2
-            )
-            await send_mutation(mutation_vars)
+            player_1 = self.player_1_input.value
+            player_2 = self.player_2_input.value
 
-            await score_writer(p1_score, p2_score, player_1, player_2)
-            return
+            if self.grab_match_switch.value == False:
+                input = p1_score if player == 1 else p2_score
+                await change_text(input, path)
+                return
 
+            else:
+                mutation_vars, numId = await mutation_writer(
+                    p1_score, p2_score, player_1, player_2
+                )
+                await send_mutation(mutation_vars)
+
+                await score_writer(p1_score, p2_score, player_1, player_2)
+                return
+       except:
+           return
 
     async def write_players_json(self, scoreboard):
 
