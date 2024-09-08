@@ -18,7 +18,6 @@ class Scoreboard_Components:
             value=[],
         ).classes("w-60")
 
-
         self.round_input = ui.input(
             label="Round",
             on_change=lambda e: change_text(e.value, path="match_info\match_round.txt"),
@@ -27,10 +26,9 @@ class Scoreboard_Components:
         self.player_1_input = ui.input(
             label="Player 1",
             on_change=lambda e: change_text(
-                e.value, path="match_info\player_1_gamertag.txt"
+                e.value, path="match_info\player_1_info\player_1_gamertag.txt"
             ),
         )
-
 
         self.player_1_score = ui.number(
             "P1 Score",
@@ -39,10 +37,20 @@ class Scoreboard_Components:
             value=0,
         )
 
+        
+        flag_options = ["None","State", "Country", "Custom"]
+
+        self.player_1_flag = ui.select(
+            label="P1 Flag", options=flag_options, with_input= True, value="None"
+        ).classes("w-40")
+        self.player_2_flag = ui.select(
+            label="P2 Flag", options=flag_options, with_input = True, value="None"
+        ).classes("w-40")
+
         self.player_2_input = ui.input(
             label="Player 2",
             on_change=lambda e: change_text(
-                e.value, path="match_info\player_2_gamertag.txt"
+                e.value, path="match_info\player_2_info\player_2_gamertag.txt"
             ),
         )
 
@@ -65,12 +73,12 @@ class Scoreboard_Components:
 
         self.player_1_score.on_value_change(
             lambda e: self.handle_mutate_score(
-                e, player=1, path="match_info\player_1_score.txt"
+                e, player=1, path="match_info\player_1_info\player_1_score.txt"
             )
         )
         self.player_2_score.on_value_change(
             lambda e: self.handle_mutate_score(
-                e, player=2, path="match_info\player_2_score.txt"
+                e, player=2, path="match_info\player_2_info\player_2_score.txt"
             )
         )
 
@@ -79,8 +87,9 @@ class Scoreboard_Components:
         self.reset_button.on_click(self.reset_scoreboard)
 
         self.report_score_button.disable()
-
-
+        
+        self.player_1_flag.on_value_change(lambda e: self.handle_set_flag(e, player=1))
+        self.player_2_flag.on_value_change(lambda e: self.handle_set_flag(e, player=2))
 
     async def get_set(self, sender):
 
@@ -134,8 +143,9 @@ class Scoreboard_Components:
 
     async def handle_mutate_score(self, e, player, path):
         await self.mutate_score(e.sender, player, path)
-
-
+    
+    async def handle_set_flag(self, e, player):
+        await self.set_flag(e.sender, player)
 
     async def get_scoreboard_data(self, sender, slug):
 
@@ -207,12 +217,9 @@ class Scoreboard_Components:
         self.player_1_score.value = 0
         self.player_2_score.value = 0
 
-
     async def mutate_score(self, sender, player, path):
 
-
-
-       try: 
+        try:
             p1_score = int(self.player_1_score.value)
             p2_score = int(self.player_2_score.value)
 
@@ -225,15 +232,15 @@ class Scoreboard_Components:
                 return
 
             else:
-                mutation_vars, numId = await mutation_writer(
-                    p1_score, p2_score, player_1, player_2
-                )
+                mutation_vars = await mutation_writer(
+                    p1_score, p2_score)
                 await send_mutation(mutation_vars)
 
                 await score_writer(p1_score, p2_score, player_1, player_2)
                 return
-       except:
-           return
+        except Exception as e:
+            print(e)
+            return
 
     async def write_players_json(self, scoreboard):
 
@@ -271,7 +278,7 @@ class Scoreboard_Components:
         print("no streamed matches")
 
     async def report_match(self, sender, dialog):
-        with open(MATCH_MUTATION_PATH, "r") as file:
+        with open(MATCH_MUTATION_PATH, "r", encoding="utf-8") as file:
             mutation_json = json.load(file)
 
         if int(self.player_1_score.value) == 0 and int(self.player_2_score.value) == 0:
@@ -312,15 +319,27 @@ class Scoreboard_Components:
             dialog.close()
             return
 
+    async def set_flag(self, sender, player):
+        print(sender.value)
+        
+        
+        path = f"match_info/player_{player}_info"
+        
+        flag_path = f"{path}/player_{player}_{sender.value}.png"
+        destination_path = f"{path}/player_{player}_flag.png"
+
+        shutil.copy(flag_path, destination_path)
+
+
 
 async def change_text(input, path):
-    with open(path, "w") as file:
+    with open(path, "w", encoding="utf-8") as file:
         file.write(str(input))
     return
 
 
 def swap_players():
-    with open(MATCH_JSON_PATH, "r") as file:
+    with open(MATCH_JSON_PATH, "r", encoding="utf-8") as file:
 
         bracket_json = json.load(file)
         bracket_json["players"][0], bracket_json["players"][1] = (
@@ -342,8 +361,28 @@ def swap_files(file1_path, file2_path):
 
 
 def swap_player_files():
-    swap_files("match_info/player_1_gamertag.txt", "match_info/player_2_gamertag.txt")
-    swap_files("match_info/player_1_score.txt", "match_info/player_2_score.txt")
-    swap_files("match_info/player_1_id.txt", "match_info/player_2_id.txt")
-    swap_files("match_info/player_1_state.png", "match_info/player_2_state.png")
-    swap_files("match_info/player_1_country.png", "match_info/player_2_country.png")
+
+    try:
+        swap_files("match_info/player_1_info/player_1_gamertag.txt", "match_info/player_2_info/player_2_gamertag.txt")
+    except Exception as e:
+        print(f"failed to swap gamertag files: {e}")
+    try:
+        swap_files("match_info/player_1_info/player_1_score.txt", "match_info/player_2_info/player_2_score.txt")
+    except Exception as e:
+        print(f"failed to swap score files: {e}")
+    try:
+        swap_files("match_info/player_1_info/player_1_id.txt", "match_info/player_2_info/player_2_id.txt")
+    except Exception as e:
+        print(f"failed to swap id files: {e}")
+    try:
+        swap_files("match_info/player_1_info/player_1_state.png", "match_info/player_2_info/player_2_state.png")
+    except Exception as e:
+        print(f"failed to swap state flag files: {e}")
+    try:
+        swap_files("match_info/player_1_info/player_1_country.png", "match_info/player_2_info/player_2_country.png")
+    except Exception as e:
+        print(f"failed to swap country flag files: {e}")
+    try:
+        swap_files("match_info/player_1_info/player_1_flag.png", "match_info/player_2_info/player_2_flag.png")
+    except Exception as e:
+        print(f"failed to swap flag files: {e}")

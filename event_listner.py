@@ -258,7 +258,7 @@ async def write_players_json(
 
 async def change_text(input, path):
 
-    with open(path, "w") as file:
+    with open(path, "w", encoding="utf-8") as file:
         file.write(str(input))
     return
 
@@ -274,14 +274,14 @@ def get_set(set_id):
 
 
 def swap_players():
-    with open(MATCH_JSON_PATH, "r") as file:
+    with open(MATCH_JSON_PATH, "r", encoding="utf-8") as file:
         bracket_json = json.load(file)
         bracket_json["players"][0], bracket_json["players"][1] = (
             bracket_json["players"][1],
             bracket_json["players"][0],
         )
 
-    with open(MATCH_JSON_PATH, "w") as file:
+    with open(MATCH_JSON_PATH, "w", encoding="utf-8") as file:
         file.write(json.dumps(bracket_json))
         scoreboard_writer(bracket_json)
         return bracket_json
@@ -387,7 +387,7 @@ async def report_score():
     ...
 
 async def change_text(input, path):
-    with open(path, "w") as file:
+    with open(path, "w", encoding="utf-8") as file:
         file.write(str(input))
     return
 
