@@ -69,9 +69,10 @@ def process_images_in_folder(source_folder, destination_folder, border_size=10, 
 
 
 def main():
-    source_folder = 'country_flags'
-    destination_folder = 'country_flags_rounded'
-    process_images_in_folder(source_folder, destination_folder, border_size=50, corner_radius=10)
+    # source_folder = 'country_flags'
+    # destination_folder = 'country_flags_rounded'
+    # process_images_in_folder(source_folder, destination_folder, border_size=50, corner_radius=10)
+    add_border_and_round_corners("utils/640px-Flag_of_Serbia_and_Montenegro_(1992–2006).svg.png","utils/Flag_of_Serbia_and_Montenegro_rounded.png", border_size=50, corner_radius=10)
     
 if __name__ in {"__main__"}:
     main()
