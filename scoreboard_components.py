@@ -37,14 +37,14 @@ class Scoreboard_Components:
             value=0,
         )
 
-        
-        flag_options = ["None","State", "Country", "Custom"]
+        with open("utils/location_list.json", "r", encoding="utf-8") as file:
+            flag_options = json.load(file)
 
         self.player_1_flag = ui.select(
-            label="P1 Flag", options=flag_options, with_input= True, value="None"
+            label="P1 Flag", options=flag_options, with_input=True, value=None
         ).classes("w-40")
         self.player_2_flag = ui.select(
-            label="P2 Flag", options=flag_options, with_input = True, value="None"
+            label="P2 Flag", options=flag_options, with_input=True, value=None
         ).classes("w-40")
 
         self.player_2_input = ui.input(
@@ -87,7 +87,7 @@ class Scoreboard_Components:
         self.reset_button.on_click(self.reset_scoreboard)
 
         self.report_score_button.disable()
-        
+
         self.player_1_flag.on_value_change(lambda e: self.handle_set_flag(e, player=1))
         self.player_2_flag.on_value_change(lambda e: self.handle_set_flag(e, player=2))
 
@@ -127,8 +127,6 @@ class Scoreboard_Components:
                     )
         confirm.open()
 
-
-
     async def get_confirm_dialog(self, e):
         await self.get_set(e.sender)
 
@@ -143,7 +141,7 @@ class Scoreboard_Components:
 
     async def handle_mutate_score(self, e, player, path):
         await self.mutate_score(e.sender, player, path)
-    
+
     async def handle_set_flag(self, e, player):
         await self.set_flag(e.sender, player)
 
@@ -232,8 +230,7 @@ class Scoreboard_Components:
                 return
 
             else:
-                mutation_vars = await mutation_writer(
-                    p1_score, p2_score)
+                mutation_vars = await mutation_writer(p1_score, p2_score)
                 await send_mutation(mutation_vars)
 
                 await score_writer(p1_score, p2_score, player_1, player_2)
@@ -251,6 +248,22 @@ class Scoreboard_Components:
         self.player_1_score.value = player_1["score"]
         self.player_2_input.value = player_2["gamertag"]
         self.player_2_score.value = player_2["score"]
+
+        if player_1["state"] is not None:
+            self.player_1_flag.value = player_1["state"]
+        elif player_1["country"] is not None:
+            self.player_1_flag.value = player_1["country"]
+        else:
+            self.player_1_flag.value = None
+        
+        
+        if player_2["state"] is not None:
+            self.player_2_flag.value = player_2["state"]
+        elif player_2["country"] is not None:
+            self.player_1_flag.value = player_2["country"]
+        else:
+            self.player_2_flag.value = None
+        
 
         self.round_input.update()
         self.player_1_input.update()
@@ -320,16 +333,51 @@ class Scoreboard_Components:
             return
 
     async def set_flag(self, sender, player):
+        ...
         print(sender.value)
-        
-        
+
+        if player == 1:
+            with open("match_info/player_1_info/player_1_country.txt", "r") as file:
+                country = file.read()
+            with open("match_info/player_1_info/player_1_state.txt", "r") as file:
+                state = file.read()
+        print(country)
+        print(state)
+
         path = f"match_info/player_{player}_info"
-        
-        flag_path = f"{path}/player_{player}_{sender.value}.png"
         destination_path = f"{path}/player_{player}_flag.png"
+        
+        if sender.value == None:
+            transparent_image = Image.new("RGBA", (300, 300), (0, 0, 0, 0))
+            transparent_image.save(str(destination_path + ".png"))
+            return
+        
+        code = get_code(sender.value)
+        
+        try:
+            shutil.copy(f"state_flags_rounded/{code}.png", str(destination_path + ".png"))
+            return
+        except:
+            print("Flag not Found")       
 
-        shutil.copy(flag_path, destination_path)
+        # shutil.copy(flag_path, destination_path)
 
+# def get_flag(location, destination_path, location_type):
+
+
+
+
+
+
+#     if location_type == "country":
+#         location = get_code(location)
+
+#     flag_path = f"{location_type}_flags_rounded/{location}.png"
+
+#     try:
+#         shutil.copy(flag_path, str(destination_path + ".png"))
+#     except:
+#         print("Flag not Found")
 
 
 async def change_text(input, path):
@@ -363,26 +411,44 @@ def swap_files(file1_path, file2_path):
 def swap_player_files():
 
     try:
-        swap_files("match_info/player_1_info/player_1_gamertag.txt", "match_info/player_2_info/player_2_gamertag.txt")
+        swap_files(
+            "match_info/player_1_info/player_1_gamertag.txt",
+            "match_info/player_2_info/player_2_gamertag.txt",
+        )
     except Exception as e:
         print(f"failed to swap gamertag files: {e}")
     try:
-        swap_files("match_info/player_1_info/player_1_score.txt", "match_info/player_2_info/player_2_score.txt")
+        swap_files(
+            "match_info/player_1_info/player_1_score.txt",
+            "match_info/player_2_info/player_2_score.txt",
+        )
     except Exception as e:
         print(f"failed to swap score files: {e}")
     try:
-        swap_files("match_info/player_1_info/player_1_id.txt", "match_info/player_2_info/player_2_id.txt")
+        swap_files(
+            "match_info/player_1_info/player_1_id.txt",
+            "match_info/player_2_info/player_2_id.txt",
+        )
     except Exception as e:
         print(f"failed to swap id files: {e}")
     try:
-        swap_files("match_info/player_1_info/player_1_state.png", "match_info/player_2_info/player_2_state.png")
+        swap_files(
+            "match_info/player_1_info/player_1_state.png",
+            "match_info/player_2_info/player_2_state.png",
+        )
     except Exception as e:
         print(f"failed to swap state flag files: {e}")
     try:
-        swap_files("match_info/player_1_info/player_1_country.png", "match_info/player_2_info/player_2_country.png")
+        swap_files(
+            "match_info/player_1_info/player_1_country.png",
+            "match_info/player_2_info/player_2_country.png",
+        )
     except Exception as e:
         print(f"failed to swap country flag files: {e}")
     try:
-        swap_files("match_info/player_1_info/player_1_flag.png", "match_info/player_2_info/player_2_flag.png")
+        swap_files(
+            "match_info/player_1_info/player_1_flag.png",
+            "match_info/player_2_info/player_2_flag.png",
+        )
     except Exception as e:
         print(f"failed to swap flag files: {e}")

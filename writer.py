@@ -66,27 +66,6 @@ def get_player(player_id):
     return player_response
 
 
-def get_flag(location, destination_path, location_type):
-
-    print(f"location: {location}")
-    print(f"Destination: {destination_path}")
-    print(f"Type:  {location_type}")
-    flag_path = f"{location_type}_flags_rounded/{location}.png"
-
-    if location == None:
-        transparent_image = Image.new("RGBA", (300, 300), (0, 0, 0, 0))
-        transparent_image.save(str(destination_path + ".png"))
-        return
-
-    if location_type == "country":
-        location = get_code(location)
-
-    flag_path = f"{location_type}_flags_rounded/{location}.png"
-
-    try:
-        shutil.copy(flag_path, str(destination_path + ".png"))
-    except:
-        print("Flag not Found")
 
 
 
@@ -144,11 +123,6 @@ def get_player(player_id):
     return player_response
 
 
-def set_flag(input):
-    if input == "state":
-        ...
-    if input == "country":
-        ...
 
 
 def load_custom_flag(path, player_id): ...
@@ -217,13 +191,10 @@ def scoreboard_writer(bracket_json):
                 for player_data in players:
                     player_path = f"{player_dir}player_{player_count}_{player_data}"
                     
-                    if player_data == "state" or player_data == "country":
-                        get_flag(players[player_data], player_path, player_data)
 
-                    else:
-                        f = open(f"{player_path}.txt", "w")
-                        f.write(str(players[player_data]))
-                        f.close()
+                    f = open(f"{player_path}.txt", "w")
+                    f.write(str(players[player_data]))
+                    f.close()
 
     return
 
