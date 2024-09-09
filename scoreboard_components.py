@@ -3,6 +3,7 @@ from collections import Counter
 from event_listner import extract_slug, send_mutation
 from queries import *
 from query_parser import *
+from scoreboard_utils import change_text, swap_player_files, swap_players
 from writer import *
 from nicegui import ui
 from constants import *
@@ -20,13 +21,13 @@ class Scoreboard_Components:
 
         self.round_input = ui.input(
             label="Round",
-            on_change=lambda e: change_text(e.value, path="match_info\match_round.txt"),
+            on_change=lambda e: change_text(e.value, path=ROUND_PATH),
         )
 
         self.player_1_input = ui.input(
             label="Player 1",
             on_change=lambda e: change_text(
-                e.value, path="match_info\player_1_info\player_1_gamertag.txt"
+                e.value, path=P1_GAMERTAG_PATH
             ),
         )
 
@@ -37,12 +38,13 @@ class Scoreboard_Components:
             value=0,
         )
 
-        with open("utils/location_list.json", "r", encoding="utf-8") as file:
+        with open(LOCATION_LIST_PATH, "r", encoding="utf-8") as file:
             flag_options = json.load(file)
 
         self.player_1_flag = ui.select(
             label="P1 Flag", options=flag_options, with_input=True, value=None
         ).classes("w-40")
+
         self.player_2_flag = ui.select(
             label="P2 Flag", options=flag_options, with_input=True, value=None
         ).classes("w-40")
@@ -50,7 +52,7 @@ class Scoreboard_Components:
         self.player_2_input = ui.input(
             label="Player 2",
             on_change=lambda e: change_text(
-                e.value, path="match_info\player_2_info\player_2_gamertag.txt"
+                e.value, path=P2_GAMERTAG_PATH
             ),
         )
 
@@ -73,12 +75,12 @@ class Scoreboard_Components:
 
         self.player_1_score.on_value_change(
             lambda e: self.handle_mutate_score(
-                e, player=1, path="match_info\player_1_info\player_1_score.txt"
+                e, player=1, path= P1_SCORE_PATH
             )
         )
         self.player_2_score.on_value_change(
             lambda e: self.handle_mutate_score(
-                e, player=2, path="match_info\player_2_info\player_2_score.txt"
+                e, player=2, path= P2_SCORE_PATH
             )
         )
 
@@ -168,15 +170,32 @@ class Scoreboard_Components:
             ui.notify("No Matches Available")
             return
 
+
+
     async def swap_player_ui(self, sender):
+
+        p1_flag = self.player_1_flag.value
+        p2_flag = self.player_2_flag.value
+        
+        print(f"BEFORE  P1:  {p1_flag} | P2: {p2_flag}")
+        
         if self.grab_match_switch.value == True:
             scoreboard = swap_players()
             await self.write_players_json(scoreboard)
+            
+            self.player_1_flag.value = p2_flag
+            self.player_2_flag.value = p1_flag
+
+            self.player_1_flag.update()
+            self.player_2_flag.update()
             return
 
         else:
-            print("I work")
+            
             swap_player_files()
+
+
+
 
             self.player_1_input.value, self.player_2_input.value = (
                 self.player_2_input.value,
@@ -188,10 +207,15 @@ class Scoreboard_Components:
                 self.player_1_score.value,
             )
 
+            self.player_1_flag.value = p2_flag
+            self.player_2_flag.value = p1_flag
+
             self.player_1_score.update()
             self.player_1_input.update()
             self.player_2_score.update()
             self.player_2_input.update()
+            self.player_1_flag.update()
+            self.player_2_flag.update()
 
     async def lock_scoreboard(self):
         self.round_input.disable()
@@ -334,121 +358,25 @@ class Scoreboard_Components:
 
     async def set_flag(self, sender, player):
         ...
-        print(sender.value)
+        print(f"Player {player}:  {sender.value}")
 
-        if player == 1:
-            with open("match_info/player_1_info/player_1_country.txt", "r") as file:
-                country = file.read()
-            with open("match_info/player_1_info/player_1_state.txt", "r") as file:
-                state = file.read()
-        print(country)
-        print(state)
 
-        path = f"match_info/player_{player}_info"
-        destination_path = f"{path}/player_{player}_flag.png"
+        destination_path = f"match_info/player_{player}_info/player_{player}_flag.png"
+        flag_path = f"utils/flags/{sender.value}.png"
         
+
         if sender.value == None:
             transparent_image = Image.new("RGBA", (300, 300), (0, 0, 0, 0))
-            transparent_image.save(str(destination_path + ".png"))
+            transparent_image.save(destination_path)
             return
-        
-        code = get_code(sender.value)
-        
+
         try:
-            shutil.copy(f"state_flags_rounded/{code}.png", str(destination_path + ".png"))
-            return
+            shutil.copy(flag_path, destination_path)
         except:
-            print("Flag not Found")       
-
-        # shutil.copy(flag_path, destination_path)
-
-# def get_flag(location, destination_path, location_type):
+            ui.notify("Flag not Found")
 
 
 
 
 
 
-#     if location_type == "country":
-#         location = get_code(location)
-
-#     flag_path = f"{location_type}_flags_rounded/{location}.png"
-
-#     try:
-#         shutil.copy(flag_path, str(destination_path + ".png"))
-#     except:
-#         print("Flag not Found")
-
-
-async def change_text(input, path):
-    with open(path, "w", encoding="utf-8") as file:
-        file.write(str(input))
-    return
-
-
-def swap_players():
-    with open(MATCH_JSON_PATH, "r", encoding="utf-8") as file:
-
-        bracket_json = json.load(file)
-        bracket_json["players"][0], bracket_json["players"][1] = (
-            bracket_json["players"][1],
-            bracket_json["players"][0],
-        )
-
-    with open(MATCH_JSON_PATH, "w") as file:
-        file.write(json.dumps(bracket_json))
-        scoreboard_writer(bracket_json)
-        return bracket_json
-
-
-def swap_files(file1_path, file2_path):
-    temp_file_path = file1_path + ".tmp"
-    shutil.move(file1_path, temp_file_path)
-    shutil.move(file2_path, file1_path)
-    shutil.move(temp_file_path, file2_path)
-
-
-def swap_player_files():
-
-    try:
-        swap_files(
-            "match_info/player_1_info/player_1_gamertag.txt",
-            "match_info/player_2_info/player_2_gamertag.txt",
-        )
-    except Exception as e:
-        print(f"failed to swap gamertag files: {e}")
-    try:
-        swap_files(
-            "match_info/player_1_info/player_1_score.txt",
-            "match_info/player_2_info/player_2_score.txt",
-        )
-    except Exception as e:
-        print(f"failed to swap score files: {e}")
-    try:
-        swap_files(
-            "match_info/player_1_info/player_1_id.txt",
-            "match_info/player_2_info/player_2_id.txt",
-        )
-    except Exception as e:
-        print(f"failed to swap id files: {e}")
-    try:
-        swap_files(
-            "match_info/player_1_info/player_1_state.png",
-            "match_info/player_2_info/player_2_state.png",
-        )
-    except Exception as e:
-        print(f"failed to swap state flag files: {e}")
-    try:
-        swap_files(
-            "match_info/player_1_info/player_1_country.png",
-            "match_info/player_2_info/player_2_country.png",
-        )
-    except Exception as e:
-        print(f"failed to swap country flag files: {e}")
-    try:
-        swap_files(
-            "match_info/player_1_info/player_1_flag.png",
-            "match_info/player_2_info/player_2_flag.png",
-        )
-    except Exception as e:
-        print(f"failed to swap flag files: {e}")
