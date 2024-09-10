@@ -121,7 +121,7 @@ async def get_events(button, input, event_dropdown):
                     event_dropdown.enable()
                     return
     except:
-        ui.notify("Invalid Slug")
+        ui.notify("Invalid Slug", type="warning")
 
 
 async def get_streamers(stream_dropdown, tournament_url):
@@ -184,7 +184,7 @@ async def get_scoreboard_data(
 ):
 
     if stream_select.value == [] or stream_select.value == 0:
-        ui.notify("No Matches Available 1")
+        ui.notify("No Matches Available", type="info")
         return
 
     try:
@@ -205,7 +205,7 @@ async def get_scoreboard_data(
         player_2_input.disable()
         report_score_button.enable()
     except:
-        ui.notify("No Matches Available")
+        ui.notify("No Matches Available", type="info")
         return
 
 

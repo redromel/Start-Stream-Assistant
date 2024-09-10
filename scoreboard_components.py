@@ -87,7 +87,7 @@ class Scoreboard_Components:
         self.swap_button.on_click(self.handle_swap_player_ui)
         self.reset_button.on_click(self.reset_scoreboard)
 
-        # self.report_score_button.disable()
+        self.report_score_button.disable()
 
         self.player_1_flag.on_value_change(lambda e: self.handle_set_flag(e, player=1))
         self.player_2_flag.on_value_change(lambda e: self.handle_set_flag(e, player=2))
@@ -145,13 +145,13 @@ class Scoreboard_Components:
 
     async def get_scoreboard_data(self, sender, slug):
 
-        print(self.grab_match_switch.value)
+
         if self.grab_match_switch.value == False:
             await self.unlock_scoreboard()
             return
 
         if self.stream_select.value == [] or self.stream_select.value == 0:
-            ui.notify("No Matches Available")
+            ui.notify("No Matches Available", type="info")
             self.grab_match_switch.set_value(False)
             return
         try:
@@ -163,7 +163,7 @@ class Scoreboard_Components:
 
         except:
             self.grab_match_switch.value = False
-            ui.notify("No Matches Available")
+            ui.notify("No Matches Available", type="info")
             return
 
     async def swap_player_ui(self, sender):
@@ -171,7 +171,7 @@ class Scoreboard_Components:
         p1_flag = self.player_1_flag.value
         p2_flag = self.player_2_flag.value
 
-        print(f"BEFORE  P1:  {p1_flag} | P2: {p2_flag}")
+
 
         if self.grab_match_switch.value == True:
             scoreboard = swap_players()
@@ -308,16 +308,14 @@ class Scoreboard_Components:
             mutation_json = json.load(file)
 
         if int(self.player_1_score.value) == 0 and int(self.player_2_score.value) == 0:
-            ui.notify("There is no Winner")
+            ui.notify("No Matches Available", type="info")
             dialog.close()
             return
 
         winnerIds = [players["winnerId"] for players in mutation_json["gameData"]]
         winnerId_count = Counter(winnerIds)
 
-        print(winnerId_count)
-        print(winnerId_count.keys())
-        print(winnerId_count.values())
+
 
         key_count = list(winnerId_count.keys())
         value_count = list(winnerId_count.values())
@@ -329,25 +327,25 @@ class Scoreboard_Components:
         elif value_count[0] < value_count[1]:
             mutation_json["winnerId"] = key_count[1]
         else:
-            ui.notify("There is no Winner")
+            ui.notify("No Matches Available", type="info")
             dialog.close()
             return
 
         try:
             await send_mutation(mutation_json)
-            ui.notify("Set Data Reported")
+            ui.notify("Set Data Successfully Reported", type="positive")
             await self.unlock_scoreboard()
             await self.reset_scoreboard()
             dialog.close()
             return
         except:
-            ui.notify("Set Data Failed to report")
+            ui.notify("Set Data Failed to report", type="negative")
             dialog.close()
             return
 
     async def set_flag(self, sender, player):
 
-        print(f"Player {player}:  {sender.value}")
+
 
         destination_path = f"match_info/player_{player}_info/player_{player}_flag.png"
         flag_path = f"utils/flags/{sender.value}.png"
@@ -363,7 +361,7 @@ class Scoreboard_Components:
         try:
             shutil.copy(flag_path, destination_path)
         except:
-            ui.notify("Flag not Found")
+            ui.notify("Flag not Found", type="info")
 
     async def upload_custom_flag_popup(self, player):
         with ui.dialog() as dialog, ui.card(align_items="center").style(

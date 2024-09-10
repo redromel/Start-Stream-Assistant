@@ -287,7 +287,6 @@ def win_counter(mutation_json, p1_score, p2_score, p1_id, p2_id):
 
 def check_mutation_conflicts(mutation_json, match_data, gameNum):
 
-    ui.notify(gameNum)
     mutation_match_data = mutation_json["gameData"]
 
     for matches in mutation_match_data:
