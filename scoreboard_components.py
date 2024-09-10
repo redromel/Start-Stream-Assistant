@@ -47,11 +47,11 @@ class Scoreboard_Components:
             self.flag_options = json.load(file)
 
         self.player_1_flag = ui.select(
-            label="P1 Flag", options=self.flag_options, with_input=True, value=None
+            label="P1 Flag", options=self.flag_options, with_input=True, value=None, clearable=True
         ).classes("w-40")
 
         self.player_2_flag = ui.select(
-            label="P2 Flag", options=self.flag_options, with_input=True, value=None
+            label="P2 Flag", options=self.flag_options, with_input=True, value=None, clearable= True
         ).classes("w-40")
 
         self.player_2_input = ui.input(
@@ -154,17 +154,17 @@ class Scoreboard_Components:
             ui.notify("No Matches Available", type="info")
             self.grab_match_switch.set_value(False)
             return
-        try:
-            scoreboard = self.get_scoreboard(slug)
+        # try:
+        scoreboard = self.get_scoreboard(slug)
 
-            await self.write_players_json(scoreboard)
+        await self.write_players_json(scoreboard)
 
-            await self.lock_scoreboard()
+        await self.lock_scoreboard()
 
-        except:
-            self.grab_match_switch.value = False
-            ui.notify("No Matches Available", type="info")
-            return
+        # except:
+        #     self.grab_match_switch.value = False
+        #     ui.notify("No Matches Available", type="info")
+        #     return
 
     async def swap_player_ui(self, sender):
 

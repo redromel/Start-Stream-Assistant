@@ -155,7 +155,7 @@ def scoreboard_json_writer(set_data):
     bracket_data["players"] = players
     bracket_json = json.dumps(bracket_data, ensure_ascii= False)
 
-    f = open(f"{path}/bracket_data.json", "w", encoding="utf-8")
+    f = open(MATCH_JSON_PATH, "w", encoding="utf-8")
     f.write(bracket_json)
     f.close()
 
@@ -170,6 +170,8 @@ def scoreboard_writer(bracket_json):
         os.mkdir(path)
 
     for match_data in bracket_json:
+
+
         match_path = path + "match_" + str(match_data) + ".txt"
 
         if not isinstance(bracket_json[match_data], list):
@@ -189,12 +191,14 @@ def scoreboard_writer(bracket_json):
                     os.mkdir(player_dir)
                 
                 for player_data in players:
-                    player_path = f"{player_dir}player_{player_count}_{player_data}"
                     
-
-                    f = open(f"{player_path}.txt", "w")
-                    f.write(str(players[player_data]))
-                    f.close()
+                    if player_data == 'id' or player_data == 'country' or player_data == 'state':
+                        pass
+                    else:
+                        player_path = f"{player_dir}player_{player_count}_{player_data}"
+                        f = open(f"{player_path}.txt", "w")
+                        f.write(str(players[player_data]))
+                        f.close()
 
     return
 
@@ -203,6 +207,10 @@ async def mutation_writer(p1_score, p2_score):
 
     with open(MATCH_JSON_PATH, "r", encoding="utf-8") as file:
         bracket_json = json.load(file)
+
+    if not os.path.isfile(MATCH_MUTATION_PATH):
+        with open(MATCH_MUTATION_PATH, "w", encoding="utf-8") as file:
+            pass
 
     player = bracket_json["players"]
     setId = bracket_json["id"]
