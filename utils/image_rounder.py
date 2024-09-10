@@ -68,6 +68,23 @@ def process_images_in_folder(source_folder, destination_folder, border_size=10, 
                 print(f'An error occurred while processing the file {filename}: {e}')
 
 
+def resize_image(input_path, output_path, base_height):
+    with Image.open(input_path) as img:
+        # Get the original dimensions
+        original_width, original_height = img.size
+        
+        # Calculate the new width preserving the aspect ratio
+        height_percent = (base_height / float(original_height))
+        new_width = int((float(original_width) * float(height_percent)))
+        
+        # Resize the image
+        resized_img = img.resize((new_width, base_height), Image.ANTIALIAS)
+        
+        # Save the resized image
+        resized_img.save(output_path)
+        print(f"Image saved as {output_path}")
+
+
 def main():
     # source_folder = 'country_flags'
     # destination_folder = 'country_flags_rounded'

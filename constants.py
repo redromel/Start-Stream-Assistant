@@ -20,7 +20,9 @@ MATCH_MUTATION_PATH = 'match_info/match_mutation.json'
 
 LOCATION_LIST_PATH = 'utils/location_list.json'
 
-ROUND_PATH = 'match_info\match_round.txt'
+ROUND_PATH = 'match_info/match_round.txt'
+
+FLAG_PATH = "utils/flags"
 
 P1_GAMERTAG_PATH = 'match_info\player_1_info\player_1_gamertag.txt'
 P2_GAMERTAG_PATH = 'match_info\player_2_info\player_2_gamertag.txt'
@@ -33,5 +35,7 @@ P2_ID_PATH = 'match_info/player_2_info/player_2_id.txt'
 
 P1_FLAG_PATH = 'match_info/player_1_info/player_1_flag.png'
 P2_FLAG_PATH = 'match_info/player_2_info/player_2_flag.png'
+
+
 
 
