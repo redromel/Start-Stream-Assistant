@@ -3,7 +3,14 @@ from collections import Counter
 from event_listner import extract_slug, send_mutation
 from queries import *
 from query_parser import *
-from scoreboard_utils import append_unique_item, change_text, swap_player_files, swap_players, upload_flag, remove_all_extensions
+from scoreboard_utils import (
+    append_unique_item,
+    change_text,
+    swap_player_files,
+    swap_players,
+    upload_flag,
+    remove_all_extensions,
+)
 from writer import *
 from nicegui import ui
 from constants import *
@@ -85,24 +92,28 @@ class Scoreboard_Components:
         self.player_1_flag.on_value_change(lambda e: self.handle_set_flag(e, player=1))
         self.player_2_flag.on_value_change(lambda e: self.handle_set_flag(e, player=2))
 
-    async def get_set(self, sender):
+    async def report_set_dialog(self, sender):
 
         self.player_1_input.update()
         self.player_2_input.update()
         self.player_1_score.update()
         self.player_2_score.update()
 
-        set_count = f"{self.player_1_input.value} | {self.player_1_score.value} - {self.player_2_score.value} | {self.player_2_input.value}"
+        set_count = f"{self.player_1_input.value} | {int(self.player_1_score.value)} - {int(self.player_2_score.value)} | {self.player_2_input.value}"
 
-        with ui.dialog() as confirm, ui.card(align_items="center").classes("w-40"):
+        with ui.dialog() as confirm, ui.card(align_items="center").classes("w-full"):
+
+            ui.label(set_count).classes("text-3xl").classes("font-bold").classes(
+                "text-center"
+            )
+            ui.separator()
             ui.label(
-                "Pressing Confirm will Report the Entire Set.  Do you want to report this set?"
+                "Pressing Confirm will Report the Entire Set.  Are you sure you want to report this set?"
             ).classes("text-wrap")
-            ui.label(set_count)
 
             with ui.grid(columns=2):
                 confirm_button = (
-                    ui.button("Confirm").props("color=green").classes("w-full")
+                    ui.button("Confirm").props("color=green").classes("w-full").classes('line-clamp-1')
                 )
                 exit_button = (
                     ui.button("Exit", on_click=confirm.close)
@@ -115,7 +126,7 @@ class Scoreboard_Components:
         confirm.open()
 
     async def get_confirm_dialog(self, e):
-        await self.get_set(e.sender)
+        await self.report_set_dialog(e.sender)
 
     async def handle_report_match(self, e, dialog: ui.dialog):
         await self.report_match(e.sender, dialog)
@@ -391,7 +402,9 @@ class Scoreboard_Components:
         ui.notify("Invalid File", type="negative")
         return
 
-    async def handle_file_accept(self, image, flag_name, corner, border, player, dialog):
+    async def handle_file_accept(
+        self, image, flag_name, corner, border, player, dialog
+    ):
 
         corner_radius = 30
         border_size = 10
@@ -410,16 +423,15 @@ class Scoreboard_Components:
         except:
             ui.notify("Upload Failed", type="negative")
             return
-        
-        await self.set_flag_options(flag_name,player)    
+
+        await self.set_flag_options(flag_name, player)
 
         dialog.close()
-        
+
     async def set_flag_options(self, flag_name, player):
-        
-        append_unique_item(self.flag_options,flag_name)
-    
-            
+
+        append_unique_item(self.flag_options, flag_name)
+
         if player == 1:
             self.player_1_flag.set_options(options=self.flag_options, value=flag_name)
             player_2_flag = self.player_2_flag.value
@@ -432,9 +444,6 @@ class Scoreboard_Components:
             self.player_1_flag.set_options(
                 options=self.flag_options, value=player_1_flag
             )
-            
+
         self.player_1_flag.update()
         self.player_2_flag.update()
-
-
-
