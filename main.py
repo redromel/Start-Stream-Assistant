@@ -19,49 +19,68 @@ def main():
     ...
 
     # #  *Grabbing Events and Phases based on tournament slug
-    slug_input = (
-        ui.input(
-            label="start.gg URL or Slug",
-            placeholder="https://www.start.gg/tournament/name",
+
+    with ui.grid(columns=10).classes(
+        "w-full gap-4 justify-items-stretch items-end align-center"
+    ):
+        slug_input = (
+            ui.input(
+                label="start.gg URL or Slug",
+                placeholder="https://www.start.gg/tournament/name",
+            )
+            .props("rounded outlined dense")
+            .classes("col-start-1 col-span-6")
         )
-        .props("size=80")
-        .props("rounded outlined dense")
-    )
 
-    slug_button = ui.button(
-        "Submit",
-        on_click=lambda e: get_tourney_info(
-            e.sender, slug_input, event_select, stream_select
-        ),
-    )
+        slug_button = (
+            ui.button(
+                "Submit",
+                on_click=lambda e: get_tourney_info(
+                    e.sender, slug_input, event_select, stream_select, footer
+                ),
+            )
+            .props("rounded outlined dense")
+            .classes("col-start-7 col-span-2 self-center")
+        )
 
-    bracket_switch = ui.switch(
-        "Bracket Listener",
-        on_change=lambda e: bracket_listner(
-            e.sender, phase_select, stream_select, slug_input
-        ),
-    )
+    with ui.header(elevated=True):
+        
+        with ui.grid(columns=10).classes("w-full h-10 align-center"):
+            footer = ui.label("FGC Stream Assistant").classes(
+                "text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-3xl dark:text-white text-align:center col-span-9 self-center")
 
-    event_select = ui.select(
-        label="Select Event",
-        options=["Insert Slug"],
-        on_change=lambda e: get_phases(e, phase_select),
-        value=[],
-    ).classes("w-60")
 
-    phase_select = ui.select(
-        label="Select Phase",
-        options=["Insert Slug"],
-        on_change=lambda e: get_pools(e, pool_select),
-        value=[],
-    ).classes("w-60")
+    with ui.grid(rows=1).classes("w-full gap-3 align-center"):
+        ui.space().classes("span-row-1")
 
-    pool_select = ui.select(
-        label="Select Pool",
-        options=["Insert Slug"],
-        on_change=lambda e: print(e.value),
-        value=[],
-    ).classes("w-60")
+    with ui.grid(columns=4):
+        event_select = ui.select(
+            label="Select Event",
+            options=["Insert Slug"],
+            on_change=lambda e: get_phases(e, phase_select),
+            value=[],
+        ).classes("col-span-1 w-full")
+
+        phase_select = ui.select(
+            label="Select Phase",
+            options=["Insert Slug"],
+            on_change=lambda e: get_pools(e, pool_select),
+            value=[],
+        ).classes("col-span-1 w-full")
+
+        pool_select = ui.select(
+            label="Select Pool",
+            options=["Insert Slug"],
+            on_change=lambda e: print(e.value),
+            value=[],
+        ).classes("col-span-1 w-full")
+
+        bracket_switch = ui.switch(
+            "Bracket Listener",
+            on_change=lambda e: bracket_listner(
+                e.sender, phase_select, stream_select, slug_input
+            ),
+        ).classes("col-span-1 w-full")
 
     ui.separator()
 
@@ -85,9 +104,6 @@ def main():
 
     # Styling stuff
     ui.dark_mode().enable()
-    ui.colors(primary="#8d0ebf")
-    ui.query("body").style(
-        "background-image: url(https://github.com/redromel/Top-8-Graphic-Maker/blob/master/utils/ggbackground-03.jpg)").style("background-size: 600px 600px")
 
 
 if __name__ in {"__main__", "__mp_main__"}:

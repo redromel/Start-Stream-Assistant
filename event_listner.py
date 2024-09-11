@@ -17,7 +17,6 @@ from nicegui import ui
 import requests
 
 
-
 @contextmanager
 def button_disable(button: ui.button):
     button.disable()
@@ -45,7 +44,7 @@ def select_disable(select: ui.select):
         select.enable()
 
 
-async def bracket_listner(switch: ui.switch, select: ui.select, stream,url):
+async def bracket_listner(switch: ui.switch, select: ui.select, stream, url):
 
     phase_id = select.value
     bracket_vars = {"phaseId": phase_id, "page": 1, "perPage": 15}
@@ -73,7 +72,7 @@ async def bracket_listner(switch: ui.switch, select: ui.select, stream,url):
 
                     if is_phase_complete(response) == True:
                         break
-                    
+
                     time.sleep(1)
         finally:
             switch.value = False
@@ -97,12 +96,24 @@ def extract_slug(url):
         return slug
 
 
-async def get_tourney_info(button, tournament_url, event_dropdown, stream_dropdown):
+async def get_tourney_info(
+    button, tournament_url, event_dropdown, stream_dropdown, footer: ui.label
+):
 
+    await get_tourney_name(tournament_url, footer)
     await get_events(button, tournament_url, event_dropdown)
     await get_streamers(stream_dropdown, tournament_url)
 
 
+async def get_tourney_name(input,footer: ui.label):
+    slug = extract_slug(input.value)
+    vars = {"slug": slug}
+    payload = {"query": EVENT_QUERY, "variables": vars}
+    async with httpx.AsyncClient() as client:
+        response = await client.post(url=API_URL, json=payload, headers=HEADER)
+        tourney = tourney_parse(response)
+        tourney_name = tourney['name']
+        footer.set_text(f"Tournament:  {tourney_name}")
 
 async def get_events(button, input, event_dropdown):
     slug = extract_slug(input.value)
@@ -126,7 +137,7 @@ async def get_events(button, input, event_dropdown):
 
 async def get_streamers(stream_dropdown, tournament_url):
     slug = extract_slug(tournament_url.value)
-    vars = {"tourneySlug":  slug}
+    vars = {"tourneySlug": slug}
     payload = {"query": STREAM_QUERY, "variables": vars}
     async with httpx.AsyncClient() as client:
         response = await client.post(url=API_URL, json=payload, headers=HEADER)
@@ -368,13 +379,15 @@ async def mutate_score(
         await change_text(input, path)
         return
     else:
-        mutation_vars, set_id = await mutation_writer(p1_score, p2_score, player_1, player_2)
+        mutation_vars, set_id = await mutation_writer(
+            p1_score, p2_score, player_1, player_2
+        )
         await send_mutation(mutation_vars)
         scoreboard_json_writer(get_set(set_id))
 
 
 async def send_mutation(mutation_vars):
-    
+
     # don't send a mutation if they just swapped
     if mutation_vars == 0:
         return
@@ -383,8 +396,8 @@ async def send_mutation(mutation_vars):
         response = await client.post(url=API_URL, json=mutation_payload, headers=HEADER)
 
 
-async def report_score():
-    ...
+async def report_score(): ...
+
 
 async def change_text(input, path):
     with open(path, "w", encoding="utf-8") as file:
