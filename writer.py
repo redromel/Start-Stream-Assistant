@@ -67,18 +67,6 @@ def get_player(player_id):
 
 
 
-
-
-def get_code(country):
-
-    with open("utils/start_gg_countries.json", "r", encoding="utf-8") as file:
-        countries_data = json.load(file)
-
-    for countries in countries_data:
-        if str(countries["name"]).lower() == str(country).lower():
-            return str(countries["code"]).lower()
-
-
 def player_info_builder(entrant_data, round, player_count):
     player = {}
     if entrant_data["entrant"]["participants"][0]["user"] != None:
@@ -122,10 +110,6 @@ def get_player(player_id):
 
     return player_response
 
-
-
-
-def load_custom_flag(path, player_id): ...
 
 
 
@@ -175,10 +159,16 @@ def scoreboard_writer(bracket_json):
         match_path = path + "match_" + str(match_data) + ".txt"
 
         if not isinstance(bracket_json[match_data], list):
-            f = open(match_path, "w", encoding="utf-8")
-            f.write(str(bracket_json[match_data]))
-            f.close()
+            
+            if match_data == 'id':
+                pass
+            else:
+                f = open(match_path, "w", encoding="utf-8")
+                f.write(str(bracket_json[match_data]))
+                f.close()
 
+        
+        # if the data point is a list, that means its the players section of the schema
         else:
 
             player_count = 0

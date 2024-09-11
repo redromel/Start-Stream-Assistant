@@ -141,7 +141,7 @@ async def get_streamers(stream_dropdown, tournament_url):
             return
         for stream in streams:
             stream_list.append(stream["stream"]["streamName"])
-        stream_dropdown.set_options(stream_list, value=stream_list)
+        stream_dropdown.set_options(stream_list, value=stream_list[0])
         stream_dropdown.enable()
 
 

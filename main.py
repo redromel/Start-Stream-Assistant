@@ -21,7 +21,8 @@ def main():
     # #  *Grabbing Events and Phases based on tournament slug
     slug_input = (
         ui.input(
-            label="start.gg tournament slug", placeholder="tournament/tournament-name/"
+            label="start.gg URL or Slug",
+            placeholder="https://www.start.gg/tournament/name",
         )
         .props("size=80")
         .props("rounded outlined dense")
@@ -76,8 +77,7 @@ def main():
             e, slug=extract_slug(slug_input.value)
         )
     )
-
-
+    ui.scroll_area().classes("h-1/2")
 
     event_select.disable()
     phase_select.disable()
@@ -86,10 +86,11 @@ def main():
     # Styling stuff
     ui.dark_mode().enable()
     ui.colors(primary="#8d0ebf")
+    ui.query("body").style(
+        "background-image: url(https://github.com/redromel/Top-8-Graphic-Maker/blob/master/utils/ggbackground-03.jpg)").style("background-size: 600px 600px")
 
 
 if __name__ in {"__main__", "__mp_main__"}:
-    
 
     main()
-    ui.run(title="FGC Scoreboard Assistant", favicon='🥊')
+    ui.run(title="FGC Scoreboard Assistant", favicon="🥊")
