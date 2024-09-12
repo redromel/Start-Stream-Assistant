@@ -420,8 +420,8 @@ class Scoreboard_Components:
 
     async def set_flag(self, sender, player):
 
-        destination_path = f"match_info/player_{player}_info/player_{player}_flag.png"
-        flag_path = f"utils/flags/{sender.value}.png"
+        destination_path = f"src/match_info/player_{player}_info/player_{player}_flag.png"
+        flag_path = f"src/utils/flags/{sender.value}.png"
 
         if sender.value == None:
             transparent_image = Image.new("RGBA", (300, 300), (0, 0, 0, 0))
@@ -476,6 +476,9 @@ class Scoreboard_Components:
     async def handle_file_accept(
         self, image, flag_name, corner, border, player, dialog
     ):
+        if flag_name in self.flag_options:
+            ui.notify("Flag Already Exists", type="negative")
+            return
 
         corner_radius = 30
         border_size = 10

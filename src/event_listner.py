@@ -44,38 +44,7 @@ def select_disable(select: ui.select):
         select.enable()
 
 
-async def bracket_listner(switch: ui.switch, select: ui.select, stream, url):
 
-    phase_id = select.value
-    bracket_vars = {"phaseId": phase_id, "page": 1, "perPage": 15}
-    payload = {"query": BRACKET_GRAPHIC_QUERY, "variables": bracket_vars}
-
-    with select_disable(select):
-        try:
-            async with httpx.AsyncClient() as client:
-
-                response = await client.post(url=API_URL, json=payload, headers=HEADER)
-
-                while switch.value == True:
-                    response = await client.post(
-                        url=API_URL, json=payload, headers=HEADER
-                    )
-
-                    while isinstance(response, int):
-                        response = await client.post(
-                            url=API_URL, json=payload, headers=HEADER
-                        )
-                        time.sleep(3)
-
-                    set_data = bracket_parse(response)
-                    bracket_writer(set_data)
-
-                    if is_phase_complete(response) == True:
-                        break
-
-                    time.sleep(1)
-        finally:
-            switch.value = False
 
 
 def extract_slug(url):
@@ -155,31 +124,6 @@ async def get_streamers(stream_dropdown, tournament_url):
         stream_dropdown.set_options(stream_list, value=stream_list[0])
         stream_dropdown.enable()
 
-
-async def get_phases(event_dropdown, phase_dropdown):
-    event_id = event_dropdown.value
-    vars = {"eventId": event_id}
-    payload = {"query": PHASE_QUERY, "variables": vars}
-
-    async with httpx.AsyncClient() as client:
-        response = await client.post(url=API_URL, json=payload, headers=HEADER)
-        phases = phase_parse(response)
-        phase_dropdown.set_options(phases, value=list(phases)[0])
-        phase_dropdown.enable()
-        return
-
-
-async def get_pools(phase_dropdown, pool_dropdown):
-    phase_id = phase_dropdown.value
-    vars = {"phaseId": phase_id}
-    payload = {"query": POOL_QUERY, "variables": vars}
-
-    async with httpx.AsyncClient() as client:
-        response = await client.post(url=API_URL, json=payload, headers=HEADER)
-        phases = pool_parse(response)
-        pool_dropdown.set_options(phases, value=list(phases)[0])
-        pool_dropdown.enable()
-        return
 
 
 async def get_scoreboard_data(
