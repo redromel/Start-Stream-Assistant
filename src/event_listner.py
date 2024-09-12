@@ -37,7 +37,7 @@ def select_disable(select: ui.select):
         select.enable()
 
 
-def extract_slug(url):
+def extract_slug(url: str):
 
     prefix = "start.gg/"
     if prefix in url:
@@ -56,7 +56,7 @@ def extract_slug(url):
 
 
 async def get_tourney_info(
-    button, tournament_url, event_dropdown, stream_dropdown, footer: ui.label
+    button: ui.button, tournament_url: ui.input, event_dropdown: ui.select, stream_dropdown: ui.select, footer: ui.label
 ):
 
     await get_tourney_name(tournament_url, footer)
@@ -64,8 +64,8 @@ async def get_tourney_info(
     await get_streamers(stream_dropdown, tournament_url)
 
 
-async def get_tourney_name(input, footer: ui.label):
-    slug = extract_slug(input.value)
+async def get_tourney_name(tournament_url: ui.input, footer: ui.label):
+    slug = extract_slug(tournament_url.value)
     vars = {"slug": slug}
     payload = {"query": EVENT_QUERY, "variables": vars}
     async with httpx.AsyncClient() as client:
@@ -75,13 +75,13 @@ async def get_tourney_name(input, footer: ui.label):
         footer.set_text(f"Tournament:  {tourney_name}")
 
 
-async def get_events(button, input, event_dropdown):
-    slug = extract_slug(input.value)
+async def get_events(button: ui.button, tournament_url: ui.input, event_dropdown: ui.select):
+    slug = extract_slug(tournament_url.value)
     vars = {"slug": slug}
     payload = {"query": EVENT_QUERY, "variables": vars}
 
     try:
-        with input_disable(input):
+        with input_disable(tournament_url):
             with button_disable(button):
                 async with httpx.AsyncClient() as client:
                     response = await client.post(
@@ -95,7 +95,7 @@ async def get_events(button, input, event_dropdown):
         ui.notify("Invalid Slug", type="warning")
 
 
-async def get_streamers(stream_dropdown, tournament_url):
+async def get_streamers(stream_dropdown:ui.select, tournament_url:ui.input):
     slug = extract_slug(tournament_url.value)
     vars = {"tourneySlug": slug}
     payload = {"query": STREAM_QUERY, "variables": vars}

@@ -1,9 +1,11 @@
 import json
 
+from requests import Response
+
 from constants import COMPLETED
 
 
-def bracket_parse(response):
+def bracket_parse(response: Response):
 
     if response.status_code == 200:
         response_json = response.json()
@@ -23,7 +25,7 @@ def bracket_parse(response):
         return response.status_code
 
 
-def tourney_parse(response):
+def tourney_parse(response: Response):
     if response.status_code == 200:
         response_json = response.json()
         data = response_json.get('data')
@@ -37,7 +39,7 @@ def tourney_parse(response):
         print(response.text)
         return response.status_code
 
-def event_parse(response):
+def event_parse(response: Response):
     if response.status_code == 200:
         response_json = response.json()
         data = response_json.get('data')
@@ -58,7 +60,7 @@ def event_parse(response):
         return response.status_code
 
 
-def phase_parse(response):
+def phase_parse(response: Response):
     if response.status_code == 200:
         response_json = response.json()
         data = response_json.get('data')
@@ -79,7 +81,7 @@ def phase_parse(response):
         return response.status_code
 
 
-def pool_parse(response):
+def pool_parse(response: Response):
     if response.status_code == 200:
         response_json = response.json()
         data = response_json.get('data')
@@ -101,7 +103,7 @@ def pool_parse(response):
         return response.status_code
 
 
-def is_phase_complete(response):
+def is_phase_complete(response:  Response):
 
     if response.status_code == 200:
         response_json = response.json()
@@ -120,7 +122,7 @@ def is_phase_complete(response):
         return response.status_code
 
 
-def player_parse(response):
+def player_parse(response:  Response):
     if response.status_code == 200:
         response_json = response.json()
         data = response_json.get('data')
@@ -137,7 +139,7 @@ def player_parse(response):
         return response.status_code
 
 
-def stream_parse(response):
+def stream_parse(response: Response):
     if response.status_code == 200:
         response_json = response.json()
         data = response_json.get('data')
@@ -153,7 +155,7 @@ def stream_parse(response):
         return response.status_code
 
 
-def get_page_info(response):
+def get_page_info(response: Response):
     if response.status_code == 200:
         response_json = response.json()
         data = response_json.get('data')

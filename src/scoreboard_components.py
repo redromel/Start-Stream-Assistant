@@ -339,7 +339,7 @@ class Scoreboard_Components:
             print(e)
             return
 
-    async def write_players_json(self, scoreboard):
+    async def write_players_json(self, scoreboard: dict):
 
         player_1 = scoreboard["players"][0]
         player_2 = scoreboard["players"][1]
@@ -369,7 +369,7 @@ class Scoreboard_Components:
         self.player_2_input.update()
         self.player_2_score.update()
 
-    def get_scoreboard(self, slug_value):
+    def get_scoreboard(self, slug_value: str):
 
         tourney_slug = extract_slug(slug_value)
         stream_vars = {"tourneySlug": tourney_slug}
@@ -388,7 +388,7 @@ class Scoreboard_Components:
                         return scoreboard
         print("no streamed matches")
 
-    async def report_match(self, sender, dialog):
+    async def report_match(self, sender, dialog: ui.dialog):
         with open(MATCH_MUTATION_PATH, "r", encoding="utf-8") as file:
             mutation_json = json.load(file)
 
@@ -426,7 +426,7 @@ class Scoreboard_Components:
             dialog.close()
             return
 
-    async def set_flag(self, sender, player):
+    async def set_flag(self, sender, player: int):
 
         if player == 1:
             destination_path = P1_FLAG_PATH
@@ -447,7 +447,7 @@ class Scoreboard_Components:
         except:
             ui.notify("Flag not Found", type="info")
 
-    async def upload_custom_flag_popup(self, player):
+    async def upload_custom_flag_popup(self, player: int):
         with ui.dialog() as dialog, ui.card(align_items="center").style(
             "height: 600px; width: 386px;"
         ):
@@ -485,7 +485,7 @@ class Scoreboard_Components:
         return
 
     async def handle_file_accept(
-        self, image, flag_name, corner, border, player, dialog
+        self, image, flag_name: str, corner: bool, border: bool, player: int, dialog
     ):
         if flag_name in self.flag_options:
             ui.notify("Flag Already Exists", type="negative")
@@ -513,7 +513,7 @@ class Scoreboard_Components:
 
         dialog.close()
 
-    async def set_flag_options(self, flag_name, player):
+    async def set_flag_options(self, flag_name: str, player: int):
 
         append_unique_item(self.flag_options, flag_name)
 
