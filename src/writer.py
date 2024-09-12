@@ -15,7 +15,7 @@ def bracket_writer(set_data, setup=False):
 
 
         dir = f"{set_data['identifier']}_{set_data['fullRoundText']}"
-        path = f"bracket_info/{dir}"
+        path = f"src/bracket_info/{dir}"
         
         if os.path.exists(path) == False:
             os.mkdir(path)
