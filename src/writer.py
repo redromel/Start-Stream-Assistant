@@ -13,10 +13,9 @@ def bracket_writer(set_data, setup=False):
 
     for set_data in set_data:
 
-
         dir = f"{set_data['identifier']}_{set_data['fullRoundText']}"
-        path = f"src/bracket_info/{dir}"
-        
+        path = os.path.join("src", "bracket_info", dir)
+
         if os.path.exists(path) == False:
             os.mkdir(path)
 
@@ -37,9 +36,12 @@ def bracket_writer(set_data, setup=False):
             else:
                 score = ""
 
-
-            player_path = f"{path}/{set_data['identifier']}_player{playerCount}_name.txt"
-            score_path = f"{path}/{set_data['identifier']}_player{playerCount}_score.txt"
+            player_path = os.path.join(
+                path, f"{set_data['identifier']}_player{playerCount}_name.txt"
+            )
+            score_path = os.path.join(
+                path, f"{set_data['identifier']}_player{playerCount}_score.txt"
+            )
 
             if setup == True:
                 player = "Setup"
@@ -55,8 +57,6 @@ def bracket_writer(set_data, setup=False):
             playerCount = playerCount + 1
 
 
-
-
 def get_player(player_id):
     player_vars = {"playerId": player_id}
     player_payload = {"query": PLAYER_QUERY, "variables": player_vars}
@@ -64,7 +64,6 @@ def get_player(player_id):
     player_response = requests.post(url=API_URL, json=player_payload, headers=HEADER)
 
     return player_response
-
 
 
 def player_info_builder(entrant_data, round, player_count):
@@ -111,13 +110,11 @@ def get_player(player_id):
     return player_response
 
 
-
-
 def scoreboard_json_writer(set_data):
 
     bracket_data = {}
     players = []
-    path = "match_info/"
+    path = os.path.join("src", "match_info")
 
     if os.path.exists(path) == False:
         os.mkdir(path)
@@ -137,7 +134,7 @@ def scoreboard_json_writer(set_data):
         player_count = 1 + player_count
 
     bracket_data["players"] = players
-    bracket_json = json.dumps(bracket_data, ensure_ascii= False)
+    bracket_json = json.dumps(bracket_data, ensure_ascii=False)
 
     f = open(MATCH_JSON_PATH, "w", encoding="utf-8")
     f.write(bracket_json)
@@ -148,45 +145,50 @@ def scoreboard_json_writer(set_data):
 
 def scoreboard_writer(bracket_json):
 
-    path = "match_info/"
+    path = os.path.join("src", "match_info")
 
     if os.path.exists(path) == False:
         os.mkdir(path)
 
     for match_data in bracket_json:
 
-
-        match_path = path + "match_" + str(match_data) + ".txt"
+        match_path = os.path.join(path, f"match_{match_data}.txt")
 
         if not isinstance(bracket_json[match_data], list):
-            
-            if match_data == 'id':
+
+            if match_data == "id":
                 pass
             else:
                 f = open(match_path, "w", encoding="utf-8")
                 f.write(str(bracket_json[match_data]))
                 f.close()
 
-        
         # if the data point is a list, that means its the players section of the schema
         else:
 
             player_count = 0
             for players in bracket_json[match_data]:
                 player_count = player_count + 1
-                
-                player_dir = f"{path}player_{player_count}_info/"
-                
+
+                player_dir = os.path.join(path, f"player_{player_count}_info")
+
                 if os.path.exists(player_dir) == False:
                     os.mkdir(player_dir)
-                
+
                 for player_data in players:
-                    
-                    if player_data == 'id' or player_data == 'country' or player_data == 'state':
+
+                    if (
+                        player_data == "id"
+                        or player_data == "country"
+                        or player_data == "state"
+                    ):
                         pass
                     else:
-                        player_path = f"{player_dir}player_{player_count}_{player_data}"
-                        f = open(f"{player_path}.txt", "w")
+                        player_path = os.path.join(
+                            player_dir,
+                            f"player_{player_count}_{player_data}.txt",
+                        )
+                        f = open(f"{player_path}", "w")
                         f.write(str(players[player_data]))
                         f.close()
 
@@ -344,13 +346,13 @@ async def score_writer(p1_score, p2_score, player_1, player_2):
             players["score"] = p1_score
         if player_2 == players["gamertag"]:
             players["score"] = p2_score
-            
-            
+
     with open(MATCH_JSON_PATH, "w", encoding="utf-8") as file:
         file.write(json.dumps(bracket_json))
         scoreboard_writer(bracket_json)
         return bracket_json
 
-
-
-
+def init_paths():
+    os.makedirs(os.path.join("src", "bracket_info"),exist_ok=True)
+    os.makedirs(os.path.join("src", "match_info","player_1_info"),exist_ok=True)
+    os.makedirs(os.path.join("src", "match_info","player_2_info"),exist_ok=True)

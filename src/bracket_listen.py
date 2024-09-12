@@ -1,3 +1,5 @@
+import os
+import shutil
 import time
 import httpx
 from nicegui import ui
@@ -36,7 +38,7 @@ class Bracket_Listen():
             self.bracket_switch = ui.switch(
                 "Bracket Listener",
                 on_change=lambda e: bracket_listner(
-                    e.sender, self.phase_select
+                    e.sender, self.pool_select
                 ),
             ).classes("col-span-1 w-full")
         
@@ -78,6 +80,17 @@ async def bracket_listner(switch: ui.switch, select: ui.select):
     bracket_vars = {"phaseId": phase_id, "page": 1, "perPage": 15}
     payload = {"query": BRACKET_GRAPHIC_QUERY, "variables": bracket_vars}
 
+    # Clear Contents of the Bracket before listening
+    bracket_path = os.path.join("src","bracket_info")
+    if os.path.exists(bracket_path) and switch.value == True:
+        print("hello")
+        for item in os.listdir(bracket_path):
+            item_path = os.path.join(bracket_path, item)
+            if os.path.isfile(item_path):
+                os.remo(item_path)
+            elif os.path.isdir(item_path):
+                shutil.rmtree(item_path)
+        
     with select_disable(select):
         try:
             async with httpx.AsyncClient() as client:
@@ -103,4 +116,5 @@ async def bracket_listner(switch: ui.switch, select: ui.select):
 
                     time.sleep(1)
         finally:
+            time.sleep(0.25)
             switch.value = False

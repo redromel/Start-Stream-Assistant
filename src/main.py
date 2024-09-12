@@ -12,7 +12,7 @@ from queries import *
 from query_parser import *
 from scoreboard_components import Scoreboard_Components
 from writer import *
-from nicegui import ui
+from nicegui import ui, app
 from constants import *
 
 
@@ -28,9 +28,7 @@ def main():
 
     # #  *Grabbing Events and Phases based on tournament slug
 
-    with ui.row().classes(
-        "w-full justify-center"
-    ):
+    with ui.row().classes("w-full justify-center"):
         slug_input = (
             ui.input(
                 label="start.gg URL or Slug",
@@ -61,7 +59,7 @@ def main():
 
     # *Scoreboard Stuff
 
-    with ui.tab_panels(tabs, value=scoreboard_tab).classes("w-full"):
+    with ui.tab_panels(tabs, value=scoreboard_tab).classes("w-full h-full"):
         with ui.tab_panel(scoreboard_tab):
             scoreboard = Scoreboard_Components()
             stream_select = scoreboard.stream_select
@@ -84,7 +82,6 @@ def main():
 
 
 if __name__ in {"__main__", "__mp_main__"}:
-
+    init_paths()
     main()
-    ui.run(title="FGC Scoreboard Assistant", favicon="🥊")
-
+    ui.run(reload=True, title="FGC Scoreboard Assistant", favicon="🥊")

@@ -66,38 +66,6 @@ def swap_player_files():
         print(f"failed to swap flag files: {e}")
 
 
-def swap_player_files():
-
-    try:
-        swap_files(
-            P1_GAMERTAG_PATH,
-            P2_GAMERTAG_PATH,
-        )
-    except Exception as e:
-        print(f"failed to swap gamertag files: {e}")
-    try:
-        swap_files(
-            P1_SCORE_PATH,
-            P2_SCORE_PATH,
-        )
-    except Exception as e:
-        print(f"failed to swap score files: {e}")
-    try:
-        swap_files(
-            P1_ID_PATH,
-            P2_ID_PATH,
-        )
-    except Exception as e:
-        print(f"failed to swap id files: {e}")
-    try:
-        swap_files(
-            P1_FLAG_PATH,
-            P2_FLAG_PATH,
-        )
-    except Exception as e:
-        print(f"failed to swap flag files: {e}")
-
-
 def upload_flag(image, flag_name, border_size, corner_radius):
     path = f"{FLAG_PATH}/{flag_name}.png"
 

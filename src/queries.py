@@ -66,7 +66,7 @@ query($playerId: ID!){
 '''
 BRACKET_GRAPHIC_QUERY = '''
 query ($phaseId: ID!, $page: Int!, $perPage: Int!) {
-  phase(id: $phaseId) {
+  phaseGroup(id: $phaseId) {
     state
     sets(
       page: $page

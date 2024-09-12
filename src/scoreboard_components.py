@@ -22,7 +22,9 @@ class Scoreboard_Components:
         with open(LOCATION_LIST_PATH, "r", encoding="utf-8") as file:
             self.flag_options = json.load(file)
 
-        with ui.grid(columns=10).classes("w-full gap-1 justify-items-stretch items-end align-right"):
+        with ui.grid(columns=10).classes(
+            "w-full gap-1 justify-items-stretch items-end align-right"
+        ):
             self.stream_select = ui.select(
                 label="Select Stream",
                 options=["Insert Slug"],
@@ -33,16 +35,23 @@ class Scoreboard_Components:
             self.grab_match_switch = ui.switch(
                 f"Get Streamed Match",
             ).classes("col-start-4 col-span-3  justify-self-end")
-            
-            self.report_score_button = ui.button("Report Score").classes("col-start-8 col-span-2 justify-self-end").bind_visibility_from(
-                self.grab_match_switch, "value"
+
+            self.report_score_button = (
+                ui.button("Report Score")
+                .classes("col-start-8 col-span-2 justify-self-end")
+                .bind_visibility_from(self.grab_match_switch, "value")
             )
-            
-            
+
         ui.space()
         # SCOREBOARD COMPONENTS
-        with ui.grid(columns=10).classes("w-full gap-1 justify-items-stretch items-end align-right"):
-            self.reset_button = ui.button(icon="delete").props("outline round size-xs").classes("col-start-10 justify-self-end align-right")
+        with ui.grid(columns=10).classes(
+            "w-full gap-1 justify-items-stretch items-end align-right"
+        ):
+            self.reset_button = (
+                ui.button(icon="delete")
+                .props("outline round size-xs")
+                .classes("col-start-10 justify-self-end align-right")
+            )
         with ui.grid(columns=18, rows=6).classes("w-full h-1/2 gap-6").classes(
             "justify-stretch justify-items-stretch"
         ):
@@ -61,9 +70,6 @@ class Scoreboard_Components:
             ui.space().classes("col-span-2 border-p1").classes(
                 "place-content-center"
             ).classes("row-start-1 row-span-2")
-            
-
-
 
             # Row 2 P1 ---------------------------
             self.player_1_input = (
@@ -154,8 +160,6 @@ class Scoreboard_Components:
                 .classes("col-span-5 border-p1")
                 .classes("row-start-5 row-span-2")
             )
-
-
 
         self.player_1_score.on_value_change(
             lambda e: self.handle_mutate_score(e, player=1, path=P1_SCORE_PATH)
@@ -420,9 +424,12 @@ class Scoreboard_Components:
 
     async def set_flag(self, sender, player):
 
-        destination_path = f"src/match_info/player_{player}_info/player_{player}_flag.png"
-        flag_path = f"src/utils/flags/{sender.value}.png"
+        if player == 1:
+            destination_path = P1_FLAG_PATH
+        else:
+            destination_path = P2_FLAG_PATH
 
+        flag_path = os.path.join(FLAG_PATH, f"{sender.value}.png")
         if sender.value == None:
             transparent_image = Image.new("RGBA", (300, 300), (0, 0, 0, 0))
             transparent_image.save(destination_path)

@@ -1,12 +1,14 @@
 import json
 
+from constants import COMPLETED
+
 
 def bracket_parse(response):
 
     if response.status_code == 200:
         response_json = response.json()
         data = response_json.get('data')
-        phase = data.get('phase')
+        phase = data.get('phaseGroup')
         sets = phase.get('sets')
         nodes = sets.get('nodes')
         # print(json.dumps(data,indent=2))
@@ -104,11 +106,11 @@ def is_phase_complete(response):
     if response.status_code == 200:
         response_json = response.json()
         data = response_json.get('data')
-        phase = data.get('phase')
+        phase = data.get('phaseGroup')
         phase_json = json.dumps(phase)
         phase_data = json.loads(phase_json)
 
-        if phase_data['state'] == 'COMPLETED':
+        if phase_data['state'] == COMPLETED:
             return True
         return False
 
