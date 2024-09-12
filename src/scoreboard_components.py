@@ -34,7 +34,7 @@ class Scoreboard_Components:
 
             self.grab_match_switch = ui.switch(
                 f"Get Streamed Match",
-            ).classes("col-start-4 col-span-3  justify-self-end")
+            ).classes("col-start-4 col-span-3  justify-self-end self-stretch translate-y-3.5").props("size=xl")
 
             self.report_score_button = (
                 ui.button("Report Score")
@@ -43,6 +43,7 @@ class Scoreboard_Components:
             )
 
         ui.space()
+        ui.separator()
         # SCOREBOARD COMPONENTS
         with ui.grid(columns=10).classes(
             "w-full gap-1 justify-items-stretch items-end align-right"
@@ -184,15 +185,16 @@ class Scoreboard_Components:
 
         set_count = f"{self.player_1_input.value} | {int(self.player_1_score.value)} - {int(self.player_2_score.value)} | {self.player_2_input.value}"
 
-        with ui.dialog() as confirm, ui.card(align_items="center").classes("w-full"):
+        with ui.dialog().classes("w-full") as confirm, ui.card(align_items="center").style("width:  1000px"):
 
-            ui.label(set_count).classes("text-3xl").classes("font-bold").classes(
+            ui.label(set_count).classes("text-2xl").classes("font-bold").classes(
                 "text-center"
-            )
+            ).classes("line-clamp-1")
             ui.separator()
             ui.label(
                 "Pressing Confirm will Report the Entire Set.  Are you sure you want to report this set?"
             ).classes("text-wrap")
+
 
             with ui.grid(columns=2):
                 confirm_button = (
@@ -295,12 +297,14 @@ class Scoreboard_Components:
         self.round_input.disable()
         self.player_1_input.disable()
         self.player_2_input.disable()
+        self.stream_select.disable()
 
     async def unlock_scoreboard(self):
         self.round_input.enable()
         self.player_1_input.enable()
         self.player_2_input.enable()
         self.grab_match_switch.value = False
+        self.stream_select.enable()
 
     async def reset_scoreboard(self):
 
@@ -389,7 +393,7 @@ class Scoreboard_Components:
             mutation_json = json.load(file)
 
         if int(self.player_1_score.value) == 0 and int(self.player_2_score.value) == 0:
-            ui.notify("No Matches Available", type="info")
+            ui.notify("Match Could not be Reported", type="info")
             dialog.close()
             return
 
@@ -406,7 +410,7 @@ class Scoreboard_Components:
         elif value_count[0] < value_count[1]:
             mutation_json["winnerId"] = key_count[1]
         else:
-            ui.notify("No Matches Available", type="info")
+            ui.notify("Match Could not be Reported", type="info")
             dialog.close()
             return
 

@@ -18,33 +18,34 @@ class Bracket_Listen():
                 label="Select Event",
                 options=["Insert Slug"],
                 on_change=lambda e: get_phases(e, self.phase_select),
-                value=[],
+                value=None,
             ).classes("col-span-1 w-full")
             
             self.phase_select = ui.select(
                 label="Select Phase",
                 options=["Insert Slug"],
                 on_change=lambda e: get_pools(e, self.pool_select),
-                value=[],
+                value=None,
             ).classes("col-span-1 w-full")
             
             self.pool_select = ui.select(
                 label="Select Pool",
                 options=["Insert Slug"],
                 on_change=lambda e: print(e.value),
-                value=[],
+                value=None,
             ).classes("col-span-1 w-full")
             
             self.bracket_switch = ui.switch(
-                "Bracket Listener",
+                "Get Bracket",
                 on_change=lambda e: bracket_listner(
                     e.sender, self.pool_select
                 ),
-            ).classes("col-span-1 w-full")
+            ).classes("col-span-1 w-full").props("size=xl")
         
         
         self.event_select.disable()
         self.phase_select.disable()
+        self.pool_select.disable()
             
 
 
@@ -56,7 +57,7 @@ async def get_phases(event_dropdown: ui.select, phase_dropdown: ui.select):
     async with httpx.AsyncClient() as client:
         response = await client.post(url=API_URL, json=payload, headers=HEADER)
         phases = phase_parse(response)
-        phase_dropdown.set_options(phases, value=list(phases)[0])
+        phase_dropdown.set_options(phases, value=list(phases)[len(list(phases))-1])
         phase_dropdown.enable()
         return
     
@@ -69,7 +70,7 @@ async def get_pools(phase_dropdown: ui.select, pool_dropdown: ui.select):
     async with httpx.AsyncClient() as client:
         response = await client.post(url=API_URL, json=payload, headers=HEADER)
         phases = pool_parse(response)
-        pool_dropdown.set_options(phases, value=list(phases)[0])
+        pool_dropdown.set_options(phases, value=list(phases)[len(list(phases))-1])
         pool_dropdown.enable()
         return
 
@@ -82,7 +83,7 @@ async def bracket_listner(switch: ui.switch, select: ui.select):
 
     # Clear Contents of the Bracket before listening
     bracket_path = os.path.join("src","bracket_info")
-    if os.path.exists(bracket_path) and switch.value == True:
+    if os.path.exists(bracket_path) and switch.value == True and phase_id != None:
         print("hello")
         for item in os.listdir(bracket_path):
             item_path = os.path.join(bracket_path, item)
@@ -106,7 +107,7 @@ async def bracket_listner(switch: ui.switch, select: ui.select):
                         response = await client.post(
                             url=API_URL, json=payload, headers=HEADER
                         )
-                        time.sleep(3)
+                        time.sleep(0.25)
 
                     set_data = bracket_parse(response)
                     bracket_writer(set_data)
@@ -114,7 +115,7 @@ async def bracket_listner(switch: ui.switch, select: ui.select):
                     if is_phase_complete(response) == True:
                         break
 
-                    time.sleep(1)
+                    time.sleep(0.25)
         finally:
             time.sleep(0.25)
             switch.value = False

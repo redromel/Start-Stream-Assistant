@@ -1,9 +1,5 @@
-# TODO:  Loser Identifier for Grands
+
 # TODO:  Better Error Handling when querying
-# TODO:  NiceGUI Implementation for fun
-# TODO:  Dropdown Flag Implementation -> State, Coutnry, Custom
-# TODO:  Custom Flags (AT THE END)
-# TODO:  Figure out edge Case where Stream isn't added until later
 
 from dotenv import load_dotenv
 from bracket_listen import Bracket_Listen
@@ -55,7 +51,7 @@ def main():
     with ui.tabs().classes("w-full") as tabs:
 
         scoreboard_tab = ui.tab("Scoreboard")
-        bracket_tab = ui.tab("Bracket Listener")
+        bracket_tab = ui.tab("Backet")
 
     # *Scoreboard Stuff
 
@@ -74,6 +70,7 @@ def main():
 
             stream_select.disable()
         with ui.tab_panel(bracket_tab):
+
             bracket = Bracket_Listen()
             event_select = bracket.event_select
 
