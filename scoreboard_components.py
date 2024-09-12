@@ -42,7 +42,7 @@ class Scoreboard_Components:
         ui.space()
         # SCOREBOARD COMPONENTS
         with ui.grid(columns=10).classes("w-full gap-1 justify-items-stretch items-end align-right"):
-            self.reset_button = ui.button(icon="delete").props("fab-mini size-xs").classes("col-start-10 justify-self-end align-right")
+            self.reset_button = ui.button(icon="delete").props("outline round size-xs").classes("col-start-10 justify-self-end align-right")
         with ui.grid(columns=18, rows=6).classes("w-full h-1/2 gap-6").classes(
             "justify-stretch justify-items-stretch"
         ):
