@@ -14,6 +14,8 @@ from constants import *
 
 def main():
     ...
+    init_paths()
+
 
     with ui.header(elevated=True):
 
@@ -79,6 +81,5 @@ def main():
 
 
 if __name__ in {"__main__", "__mp_main__"}:
-    init_paths()
     main()
-    ui.run(reload=True, title="FGC Scoreboard Assistant", favicon="🥊")
+    ui.run(reload=False, title="FGC Scoreboard Assistant", favicon="🥊")
