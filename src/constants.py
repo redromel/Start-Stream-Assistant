@@ -11,6 +11,9 @@ COMPLETED = 3
 
 load_dotenv()
 KEY = os.getenv('smashgg_api')
+CLIENT_ID = os.getenv('client_id')
+CLIENT_SECRET = os.getenv('client_secret')
+
 
 API_URL = 'https://api.start.gg/gql/alpha'
 HEADER = {"Authorization": "Bearer " + KEY, 'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}

@@ -6,6 +6,7 @@ from bracket_listen import Bracket_Listen
 from event_listner import *
 from queries import *
 from query_parser import *
+import redirect_page
 from scoreboard_components import Scoreboard_Components
 from writer import *
 from nicegui import ui, app
@@ -76,10 +77,11 @@ def main():
             bracket = Bracket_Listen()
             event_select = bracket.event_select
 
+    ui.link("test", redirect_page)
     # Styling stuff
     ui.dark_mode().enable()
 
 
 if __name__ in {"__main__", "__mp_main__"}:
     main()
-    ui.run(reload=False, title="FGC Scoreboard Assistant", favicon="🥊")
+    ui.run(reload=True, title="FGC Scoreboard Assistant", favicon="🥊")
