@@ -55,7 +55,7 @@ def main():
 
     # *Scoreboard Stuff
 
-    with ui.tab_panels(tabs, value=scoreboard_tab).classes("w-full h-full"):
+    with ui.tab_panels(tabs, value=scoreboard_tab).classes("w-full h-full max-w-screen-xl self-center"):
         with ui.tab_panel(scoreboard_tab):
             scoreboard = Scoreboard_Components()
             stream_select = scoreboard.stream_select

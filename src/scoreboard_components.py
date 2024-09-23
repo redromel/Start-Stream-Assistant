@@ -79,7 +79,7 @@ class Scoreboard_Components:
                     on_change=lambda e: change_text(e.value, path=P1_GAMERTAG_PATH),
                 )
                 .classes("col-span-6 border-p1")
-                .classes("row-start-3 row-span-2")
+                .classes("row-start-3 row-span-2 text-center")
             )
 
             self.player_1_score = (
