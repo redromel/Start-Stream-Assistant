@@ -19,7 +19,7 @@ def main():
 
         with ui.grid(columns=10).classes("w-full h-10 align-center"):
             header = ui.label("FGC Stream Assistant").classes(
-                "text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-3xl dark:text-white text-align:center col-span-9 self-center"
+                "text-3xl font-extrabold leading-none tracking-tight text-gray-900 dark:text-white text-align:center col-span-9 self-center"
             )
 
     # #  *Grabbing Events and Phases based on tournament slug

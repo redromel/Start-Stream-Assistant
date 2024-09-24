@@ -77,6 +77,12 @@ query ($phaseId: ID!, $page: Int!, $perPage: Int!) {
         total
       }
       nodes {
+        event{
+          videogame
+          {
+            name
+          }
+        }
         fullRoundText
         identifier  
         slots {

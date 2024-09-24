@@ -11,6 +11,18 @@ from PIL import Image
 
 def bracket_writer(set_data, setup=False):
 
+
+    game_name = set_data[1]['event']['videogame']['name']
+    game_name_dir = os.path.join("src","bracket_info")
+    game_name_file = os.path.join(game_name_dir, "game_name.txt")
+    if os.path.exists(game_name_dir) == False:
+        os.mkdir(game_name_dir)
+    
+    f = open(game_name_file, "w", encoding="utf-8")
+    f.write(str(game_name))
+    f.close()
+    
+    
     for set_data in set_data:
 
         dir = f"{set_data['identifier']}_{set_data['fullRoundText']}"

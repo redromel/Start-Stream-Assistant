@@ -304,7 +304,9 @@ class Scoreboard_Components:
         self.player_1_input.enable()
         self.player_2_input.enable()
         self.grab_match_switch.value = False
-        self.stream_select.enable()
+        
+        if self.stream_select.value != None:
+            self.stream_select.enable()
 
     async def reset_scoreboard(self):
 
