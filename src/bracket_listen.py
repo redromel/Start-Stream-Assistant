@@ -4,7 +4,7 @@ import time
 import httpx
 from nicegui import ui
 
-from constants import API_URL, HEADER
+from constants import API_URL, HEADER, KEY
 from event_listner import select_disable
 from queries import BRACKET_GRAPHIC_QUERY, PHASE_QUERY, POOL_QUERY
 from query_parser import bracket_parse, is_phase_complete, phase_parse, pool_parse
@@ -77,6 +77,12 @@ async def get_pools(phase_dropdown: ui.select, pool_dropdown: ui.select):
 
 async def bracket_listner(switch: ui.switch, select: ui.select):
 
+
+    if KEY == '' or KEY == None:
+        ui.notify("No API key detected in .env file",type="info")
+        switch.value = False
+        return
+    
     phase_id = select.value
     bracket_vars = {"phaseId": phase_id, "page": 1, "perPage": 15}
     payload = {"query": BRACKET_GRAPHIC_QUERY, "variables": bracket_vars}
@@ -84,7 +90,6 @@ async def bracket_listner(switch: ui.switch, select: ui.select):
     # Clear Contents of the Bracket before listening
     bracket_path = os.path.join("src","bracket_info")
     if os.path.exists(bracket_path) and switch.value == True and phase_id != None:
-        print("hello")
         for item in os.listdir(bracket_path):
             item_path = os.path.join(bracket_path, item)
             if os.path.isfile(item_path):
