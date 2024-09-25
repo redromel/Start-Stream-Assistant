@@ -79,7 +79,7 @@ async def get_pools(phase_dropdown: ui.select, pool_dropdown: ui.select):
 async def bracket_listner(switch: ui.switch, select: ui.select):
 
 
-    if KEY == '' or KEY == None:
+    if KEY == '' or KEY == None or KEY == 'YOUR_API_KEY_HERE':
         ui.notify("No API key detected in .env file",type="info")
         switch.value = False
         return

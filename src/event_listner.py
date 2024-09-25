@@ -59,7 +59,7 @@ async def get_tourney_info(
     button: ui.button, tournament_url: ui.input, event_dropdown: ui.select, stream_dropdown: ui.select, footer: ui.label
 ):
 
-    if KEY == '' or KEY == None:
+    if KEY == '' or KEY == None or KEY == 'YOUR_API_KEY_HERE':
         ui.notify("No API key detected in .env file",type="info")
         return
     await get_tourney_name(tournament_url, footer)
