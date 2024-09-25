@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 import time
@@ -93,7 +94,7 @@ async def bracket_listner(switch: ui.switch, select: ui.select):
         for item in os.listdir(bracket_path):
             item_path = os.path.join(bracket_path, item)
             if os.path.isfile(item_path):
-                os.remo(item_path)
+                os.remove(item_path)
             elif os.path.isdir(item_path):
                 shutil.rmtree(item_path)
         
@@ -113,7 +114,8 @@ async def bracket_listner(switch: ui.switch, select: ui.select):
                             url=API_URL, json=payload, headers=HEADER
                         )
                         time.sleep(0.25)
-
+                    
+                
                     set_data = bracket_parse(response)
                     bracket_writer(set_data)
 

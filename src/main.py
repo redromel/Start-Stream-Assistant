@@ -81,4 +81,4 @@ def main():
 if __name__ in {"__main__", "__mp_main__"}:
     init_paths()
     main()
-    ui.run(reload=True, title="FGC Scoreboard Assistant", favicon="🥊")
+    ui.run(reload=True, title="FGC Scoreboard Assistant", favicon="🥊",native=False)
