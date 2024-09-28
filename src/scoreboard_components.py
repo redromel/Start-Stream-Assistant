@@ -94,7 +94,7 @@ class Scoreboard_Components:
             )
 
             self.swap_button = (
-                ui.button("", icon="swap_horiz")
+                ui.button("", icon="swap_horiz",color="#ff2768")
                 .classes("col-span-2 border-p1")
                 .props("fab")
                 .classes("row-start-4 row-span-2")
