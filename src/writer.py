@@ -323,8 +323,10 @@ def check_mutation_conflicts(mutation_json, match_data, gameNum):
 
 
 def is_final_phase(set_data):
+    
     phase_number = set_data["set"]["phaseGroup"]["phase"]["phaseOrder"]
-    if phase_number <= TOTAL_PHASES:
+    total_phases = len(set_data["set"]["event"]["phases"])
+    if phase_number >= total_phases:
         return True
     return False
 

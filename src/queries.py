@@ -146,6 +146,11 @@ SET_QUERY = '''
 query ($setId: ID!) {
   set(id: $setId){
     id
+    event{
+      phases{
+        id
+      }
+    }
     phaseGroup{
       phase{
         name

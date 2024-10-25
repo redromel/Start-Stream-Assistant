@@ -294,7 +294,6 @@ class Scoreboard_Components:
             self.player_2_flag.update()
 
     async def lock_scoreboard(self):
-        self.round_input.disable()
         self.player_1_input.disable()
         self.player_2_input.disable()
         self.stream_select.disable()
