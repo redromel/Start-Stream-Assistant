@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  start-stream-assistant:
+     build: .
+    
+     container_name: start-assistant
+    
+     ports:
+      - "8080:8080"
+    
+     env_file:
+      - src/.env
+    
+     restart: "no"
