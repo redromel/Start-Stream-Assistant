@@ -1,15 +1,15 @@
 version: '3.8'
 
 services:
-  start-stream-assistant:
-     build: .
-    
-     container_name: start-assistant
-    
-     ports:
+  start-stream-asst:
+    build: .
+    container_name: start-stream-assistant
+    ports:
       - "8080:8080"
-    
-     env_file:
-      - src/.env
-    
-     restart: "no"
+    env_file:
+      - .env
+    volumes:
+      - ./src:/app
+    working_dir: /app
+    command: python main.py
+    restart: "no"
