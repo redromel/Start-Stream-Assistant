@@ -1,0 +1,1 @@
+docker compose up -d && echo "Accessible on your network at: http://$(ip route get 1 | awk '{print $7}'):$(docker compose port start-stream-asst 8080 | cut -d':' -f2)"

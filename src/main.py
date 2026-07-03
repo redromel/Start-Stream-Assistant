@@ -1,4 +1,6 @@
-# TODO:  Better Error Handling when querying
+
+# TODO: Add a feature that lets me pick a match to be streamed next.  Also for me to just start the streamed match right from the assistant
+# TODO:  I know the top 8er thing is giga broken and I need to figure out what the issue is.  Maybe I'll do that   
 
 from dotenv import load_dotenv
 from bracket_listen import Bracket_Listen

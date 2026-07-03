@@ -5,7 +5,7 @@ services:
     build: .
     container_name: start-stream-assistant
     ports:
-      - "8080:8080"
+      - "0.0.0.0::8080"
     env_file:
       - .env
     volumes:
