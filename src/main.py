@@ -78,6 +78,7 @@ def main():
             bracket = Bracket_Listen()
             event_select = bracket.event_select
 
+    
     # Styling stuff
     ui.dark_mode().enable()
     ui.colors(primary="#3f80ff")
@@ -86,4 +87,4 @@ def main():
 if __name__ in {"__main__", "__mp_main__"}:
     init_paths()
     main()
-    ui.run(reload=False, title="FGC Scoreboard Assistant", favicon="🥊", native=False)
+    ui.run(reload=True, title="FGC Scoreboard Assistant", favicon="🥊", native=False)

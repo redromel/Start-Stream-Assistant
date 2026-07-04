@@ -39,6 +39,7 @@ def tourney_parse(response: Response):
         print(response.text)
         return response.status_code
 
+
 def event_parse(response: Response):
     if response.status_code == 200:
         response_json = response.json()
@@ -133,6 +134,20 @@ def player_parse(response:  Response):
         set_data = json.loads(set_json)
 
         return set_data
+    else:
+        print(f"Query failed with status code {response.status_code}")
+        print(response.text)
+        return response.status_code
+
+
+def get_match_state(response: Response):
+    if response.status_code == 200:
+        response_json = response.json()
+        data = response_json.get('data')
+        set =data.get('set')
+        state = set.get('state')
+        print(f"State: {state}")
+        return state
     else:
         print(f"Query failed with status code {response.status_code}")
         print(response.text)

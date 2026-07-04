@@ -182,6 +182,47 @@ query ($setId: ID!) {
 },
 
 '''
+MATCH_QUERY = '''
+query ($setId: ID!) {
+  set(id: $setId){
+    id
+    state
+    event{
+      phases{
+        id
+      }
+    }
+    phaseGroup{
+      phase{
+        name
+        phaseOrder
+      }
+    }
+    fullRoundText
+    slots{
+      entrant{
+        name
+        id
+        participants{
+          user{
+            player{
+              id
+            }
+          }
+        }
+      }
+      standing{
+        stats{
+          score{
+            value
+          }
+        }
+      }
+    }
+  }
+},
+
+'''
 
 STREAM_QUERY = '''
 query($tourneySlug: String){
@@ -195,8 +236,24 @@ query($tourneySlug: String){
       sets{
         id
         state
+        slots{
+          entrant{
+            id
+            name
+          }
+        }
       }
     }
+  }
+},
+
+'''
+START_MATCH =  '''
+mutation ($setId: ID!){
+  
+  markSetInProgress(setId: $setId){
+    id
+    state
   }
 },
 
