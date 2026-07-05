@@ -1,6 +1,4 @@
 
-# TODO: Add a feature that lets me pick a match to be streamed next.  Also for me to just start the streamed match right from the assistant
-# TODO:  I know the top 8er thing is giga broken and I need to figure out what the issue is.  Maybe I'll do that   
 
 from dotenv import load_dotenv
 from bracket_listen import Bracket_Listen
@@ -50,33 +48,32 @@ def main():
     with ui.grid(rows=1).classes("w-full gap-3 align-center"):
         ui.space().classes("span-row-1")
 
-    with ui.tabs().classes("w-full") as tabs:
+    with ui.grid(rows=1).classes("w-full gap-3 justify-center"):
+        bracket = Bracket_Listen()
+        event_select = bracket.event_select
+        pool_select = bracket.pool_select
 
-        scoreboard_tab = ui.tab("Scoreboard")
-        bracket_tab = ui.tab("Backet")
+        pool_select.on_value_change(
+            lambda e: scoreboard.handle_match_update(
+                e, stream_dropdown=stream_select, tournament_url=slug_input, pool_id=pool_select.value
+            )
+        )
 
     # *Scoreboard Stuff
 
-    with ui.tab_panels(tabs, value=scoreboard_tab).classes(
-        "w-full h-full max-w-screen-xl self-center"
-    ):
-        with ui.tab_panel(scoreboard_tab):
+        with ui.column().classes('w-full max-w-5xl mx-auto p-4 rounded-lg').style("background-color: #212121"):
             scoreboard = Scoreboard_Components()
             stream_select = scoreboard.stream_select
             grab_matches_switch = scoreboard.grab_match_switch
 
             grab_matches_switch.on_value_change(
                 lambda e: scoreboard.handle_grab_match_click(
-                    e, slug=extract_slug(slug_input.value)
+                    e, stream_dropdown=stream_select, tournament_url=slug_input, pool_id=pool_select.value
                 )
             )
             ui.scroll_area().classes("h-1/2")
 
             stream_select.disable()
-        with ui.tab_panel(bracket_tab):
-
-            bracket = Bracket_Listen()
-            event_select = bracket.event_select
 
     # Styling stuff
     ui.dark_mode().enable()
@@ -86,4 +83,5 @@ def main():
 if __name__ in {"__main__", "__mp_main__"}:
     init_paths()
     main()
-    ui.run(reload=False, title="FGC Scoreboard Assistant", favicon="🥊", native=False)
+    ui.run(reload=True, title="FGC Scoreboard Assistant",
+           favicon="🥊", native=False)

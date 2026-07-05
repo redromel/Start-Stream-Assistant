@@ -4,12 +4,13 @@ services:
   start-stream-asst:
     build: .
     container_name: start-stream-assistant
+    user: "${UID:-1000}:${GID:-1000}"
     ports:
-      - "0.0.0.0::8080"
+      - "0.0.0.0::8080" 
     env_file:
       - .env
     volumes:
-      - ./src:/app
-    working_dir: /app
+      - .:/app  
+    working_dir: /app/src 
     command: python main.py
     restart: "no"

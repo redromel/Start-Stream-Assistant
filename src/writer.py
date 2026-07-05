@@ -14,7 +14,7 @@ def bracket_writer(set_data, setup=False):
 
     try:
         game_name = set_data[1]['event']['videogame']['name']
-        game_name_dir = os.path.join("src","bracket_info")
+        game_name_dir = os.path.join("assets","bracket_info")
         game_name_file = os.path.join(game_name_dir, "game_name.txt")
         if os.path.exists(game_name_dir) == False:
             os.mkdir(game_name_dir)
@@ -31,7 +31,7 @@ def bracket_writer(set_data, setup=False):
     for set_data in set_data:
 
         dir = f"{set_data['identifier']}_{set_data['fullRoundText']}"
-        path = os.path.join("src", "bracket_info", dir)
+        path = os.path.join("assets", "bracket_info", dir)
 
         if os.path.exists(path) == False:
             os.mkdir(path)
@@ -131,7 +131,7 @@ def scoreboard_json_writer(set_data):
 
     bracket_data = {}
     players = []
-    path = os.path.join("src", "match_info")
+    path = os.path.join("assets", "match_info")
 
     if os.path.exists(path) == False:
         os.mkdir(path)
@@ -162,7 +162,7 @@ def scoreboard_json_writer(set_data):
 
 def scoreboard_writer(bracket_json):
 
-    path = os.path.join("src", "match_info")
+    path = os.path.join("assets", "match_info")
 
     if os.path.exists(path) == False:
         os.mkdir(path)
@@ -372,6 +372,6 @@ async def score_writer(p1_score, p2_score, player_1, player_2):
         return bracket_json
 
 def init_paths():
-    os.makedirs(os.path.join("src", "bracket_info"),exist_ok=True)
-    os.makedirs(os.path.join("src", "match_info","player_1_info"),exist_ok=True)
-    os.makedirs(os.path.join("src", "match_info","player_2_info"),exist_ok=True)
+    os.makedirs(os.path.join("assets", "bracket_info"),exist_ok=True)
+    os.makedirs(os.path.join("assets", "match_info","player_1_info"),exist_ok=True)
+    os.makedirs(os.path.join("assets", "match_info","player_2_info"),exist_ok=True)

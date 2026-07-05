@@ -180,6 +180,77 @@ query ($setId: ID!) {
     }
   }
 },
+'''
+POOL_MATCH_QUERY ='''
+query ($phaseGroupId: ID!, $page: Int!, $perPage: Int!) {
+  phaseGroup(id: $phaseGroupId) {
+    id
+    displayIdentifier
+    sets(page: $page, perPage: $perPage, sortType: STANDARD){
+      pageInfo{
+        total
+        totalPages
+      }
+      nodes{
+        id
+        state
+        slots{
+          entrant{
+            id
+            name
+          }
+        }
+        stream{
+          enabled
+        }
+        event{
+          name
+        }
+      }
+    }
+  }
+},
+
+'''
+MATCH_QUERY = '''
+query ($setId: ID!) {
+  set(id: $setId){
+    id
+    state
+    event{
+      phases{
+        id
+      }
+    }
+    phaseGroup{
+      phase{
+        name
+        phaseOrder
+      }
+    }
+    fullRoundText
+    slots{
+      entrant{
+        name
+        id
+        participants{
+          user{
+            player{
+              id
+            }
+          }
+        }
+      }
+      standing{
+        stats{
+          score{
+            value
+          }
+        }
+      }
+    }
+  }
+},
 
 '''
 
@@ -195,8 +266,27 @@ query($tourneySlug: String){
       sets{
         id
         state
+        slots{
+          entrant{
+            id
+            name
+          }
+        }
+        event{
+          name
+        }
       }
     }
+  }
+},
+
+'''
+START_MATCH =  '''
+mutation ($setId: ID!){
+  
+  markSetInProgress(setId: $setId){
+    id
+    state
   }
 },
 

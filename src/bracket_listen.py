@@ -37,7 +37,7 @@ class Bracket_Listen():
             ).classes("col-span-1 w-full")
             
             self.bracket_switch = ui.switch(
-                "Get Bracket",
+                "Listen to Pool",
                 on_change=lambda e: bracket_listner(
                     e.sender, self.pool_select
                 ),
@@ -89,7 +89,7 @@ async def bracket_listner(switch: ui.switch, select: ui.select):
     payload = {"query": BRACKET_GRAPHIC_QUERY, "variables": bracket_vars}
 
     # Clear Contents of the Bracket before listening
-    bracket_path = os.path.join("src","bracket_info")
+    bracket_path = os.path.join("assets","bracket_info")
     if os.path.exists(bracket_path) and switch.value == True and phase_id != None:
         for item in os.listdir(bracket_path):
             item_path = os.path.join(bracket_path, item)

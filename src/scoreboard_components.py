@@ -1,6 +1,6 @@
 # *Scoreboard Stuff
 from collections import Counter
-from event_listner import extract_slug, send_mutation
+from event_listner import  send_mutation, start_select_match, update_matches_stream, extract_slug, get_matches
 from queries import *
 from query_parser import *
 from scoreboard_utils import (
@@ -11,6 +11,7 @@ from scoreboard_utils import (
     upload_flag,
     remove_all_extensions,
 )
+
 from writer import *
 from nicegui import ui
 from constants import *
@@ -26,14 +27,14 @@ class Scoreboard_Components:
             "w-full gap-1 justify-items-stretch items-end align-right"
         ):
             self.stream_select = ui.select(
-                label="Select Stream",
+                label="Select Match",
                 options=["Insert Slug"],
                 on_change=lambda e: print(e.value),
                 value=None,
             ).classes("col-start-1 col-span-3")
 
             self.grab_match_switch = ui.switch(
-                f"Get Streamed Match",
+                f"Get Match",
             ).classes("col-start-4 col-span-3  justify-self-end self-stretch translate-y-3.5").props("size=xl")
 
             self.report_score_button = (
@@ -76,7 +77,8 @@ class Scoreboard_Components:
             self.player_1_input = (
                 ui.input(
                     label="Player 1",
-                    on_change=lambda e: change_text(e.value, path=P1_GAMERTAG_PATH),
+                    on_change=lambda e: change_text(
+                        e.value, path=P1_GAMERTAG_PATH),
                 )
                 .classes("col-span-6 border-p1")
                 .classes("row-start-3 row-span-2 text-center")
@@ -94,7 +96,7 @@ class Scoreboard_Components:
             )
 
             self.swap_button = (
-                ui.button("", icon="swap_horiz",color="#ff2768")
+                ui.button("", icon="swap_horiz", color="#ff2768")
                 .classes("col-span-2 border-p1")
                 .props("fab")
                 .classes("row-start-4 row-span-2")
@@ -116,7 +118,8 @@ class Scoreboard_Components:
             self.player_2_input = (
                 ui.input(
                     label="Player 2",
-                    on_change=lambda e: change_text(e.value, path=P2_GAMERTAG_PATH),
+                    on_change=lambda e: change_text(
+                        e.value, path=P2_GAMERTAG_PATH),
                 )
                 .classes("col-span-6 border-p1")
                 .classes("row-start-3 row-span-2")
@@ -136,16 +139,16 @@ class Scoreboard_Components:
                 .classes("row-start-5 row-span-2")
             )
             self.player_1_pronouns = (
-                ui.input(label="Prounouns")
-                .classes("w-15")
+                ui.input(label="Pronouns")
+                .classes("w-25")
                 .classes("col-span-3 border-p1")
                 .classes("row-start-5 row-span-2")
             )
             ui.space().classes("col-span-2 border-p1").classes("row-start-4 row-span-1")
             # Row 3 P2
             self.player_2_pronouns = (
-                ui.input(label="Prounouns")
-                .classes("w-15")
+                ui.input(label="Pronouns")
+                .classes("w-25")
                 .classes("col-span-3 border-p1")
                 .classes("row-start-5 row-span-2")
             )
@@ -173,8 +176,10 @@ class Scoreboard_Components:
         self.swap_button.on_click(self.handle_swap_player_ui)
         self.reset_button.on_click(self.reset_scoreboard)
 
-        self.player_1_flag.on_value_change(lambda e: self.handle_set_flag(e, player=1))
-        self.player_2_flag.on_value_change(lambda e: self.handle_set_flag(e, player=2))
+        self.player_1_flag.on_value_change(
+            lambda e: self.handle_set_flag(e, player=1))
+        self.player_2_flag.on_value_change(
+            lambda e: self.handle_set_flag(e, player=2))
 
     async def report_set_dialog(self, sender):
 
@@ -195,7 +200,6 @@ class Scoreboard_Components:
                 "Pressing Confirm will Report the Entire Set.  Are you sure you want to report this set?"
             ).classes("text-wrap")
 
-
             with ui.grid(columns=2):
                 confirm_button = (
                     ui.button("Confirm")
@@ -210,6 +214,7 @@ class Scoreboard_Components:
                 )
                 confirm_button.on_click(
                     lambda e: self.handle_report_match(e, dialog=confirm)
+
                 )
         confirm.open()
 
@@ -219,8 +224,11 @@ class Scoreboard_Components:
     async def handle_report_match(self, e, dialog: ui.dialog):
         await self.report_match(e.sender, dialog)
 
-    async def handle_grab_match_click(self, e, slug):
-        await self.get_scoreboard_data(e.sender, slug)
+    async def handle_grab_match_click(self, e, stream_dropdown, tournament_url, pool_id):
+        await self.get_scoreboard_data(e.sender, stream_dropdown, tournament_url, pool_id)
+    
+    async def handle_match_update(self, e, stream_dropdown, tournament_url, pool_id):
+        await self.get_match_data(e.sender, stream_dropdown, tournament_url, pool_id)
 
     async def handle_swap_player_ui(self, e):
         await self.swap_player_ui(e.sender)
@@ -231,10 +239,16 @@ class Scoreboard_Components:
     async def handle_set_flag(self, e, player):
         await self.set_flag(e.sender, player)
 
-    async def get_scoreboard_data(self, sender, slug):
+
+    async def get_match_data(self, sender, stream_dropdown, tournament_url, pool_id):
+        await get_matches(stream_dropdown, tournament_url, pool_id)
+        return
+        
+    async def get_scoreboard_data(self, sender, stream_dropdown, tournament_url, pool_id):
 
         if self.grab_match_switch.value == False:
             await self.unlock_scoreboard()
+            await get_matches(stream_dropdown, tournament_url, pool_id)
             return
 
         if self.stream_select.value == [] or self.stream_select.value == 0:
@@ -242,7 +256,7 @@ class Scoreboard_Components:
             self.grab_match_switch.set_value(False)
             return
         try:
-            scoreboard = self.get_scoreboard(slug)
+            scoreboard = await self.get_scoreboard(extract_slug(tournament_url.value))
 
             await self.write_players_json(scoreboard)
 
@@ -250,7 +264,7 @@ class Scoreboard_Components:
 
         except:
             self.grab_match_switch.value = False
-            ui.notify("No Matches Available", type="info")
+            await get_matches(stream_dropdown, tournament_url, pool_id)
             return
 
     async def swap_player_ui(self, sender):
@@ -303,7 +317,7 @@ class Scoreboard_Components:
         self.player_1_input.enable()
         self.player_2_input.enable()
         self.grab_match_switch.value = False
-        
+
         if self.stream_select.value != None or self.stream_select.value != []:
             self.stream_select.enable()
 
@@ -370,24 +384,23 @@ class Scoreboard_Components:
         self.player_2_input.update()
         self.player_2_score.update()
 
-    def get_scoreboard(self, slug_value: str):
+    async def get_scoreboard(self, slug_value: str):
 
-        tourney_slug = extract_slug(slug_value)
-        stream_vars = {"tourneySlug": tourney_slug}
-        stream_payload = {"query": STREAM_QUERY, "variables": stream_vars}
+        stream_vars = {"setId": self.stream_select.value}
+        stream_payload = {"query": MATCH_QUERY, "variables": stream_vars}
 
         stream_response = requests.post(
             url=API_URL, json=stream_payload, headers=HEADER
         )
-        stream_data = stream_parse(stream_response)
-        for stream in stream_data:
-            if stream["stream"]["streamName"] == self.stream_select.value:
-                for set in stream["sets"]:
-                    if set["state"] == ONGOING:
-                        scoreboard = scoreboard_json_writer(get_set(set["id"]))
-                        scoreboard_writer(scoreboard)
-                        return scoreboard
-        print("no streamed matches")
+        match_state = get_match_state(stream_response)
+        if match_state == NOT_STARTED:
+            response_json = await start_select_match(self.stream_select.value)
+        if match_state == COMPLETED:
+            ui.notify("Match has already been marked as complete", type="info")
+            return
+        scoreboard = scoreboard_json_writer(get_set(self.stream_select.value))
+        scoreboard_writer(scoreboard)
+        return scoreboard
 
     async def report_match(self, sender, dialog: ui.dialog):
         with open(MATCH_MUTATION_PATH, "r", encoding="utf-8") as file:
@@ -398,7 +411,8 @@ class Scoreboard_Components:
             dialog.close()
             return
 
-        winnerIds = [players["winnerId"] for players in mutation_json["gameData"]]
+        winnerIds = [players["winnerId"]
+                     for players in mutation_json["gameData"]]
         winnerId_count = Counter(winnerIds)
 
         key_count = list(winnerId_count.keys())
@@ -505,7 +519,8 @@ class Scoreboard_Components:
 
         try:
             upload_flag(image, flag_name, border_size, corner_radius)
-            ui.notify(f"File uploaded successfully: {image.name}", type="positive")
+            ui.notify(
+                f"File uploaded successfully: {image.name}", type="positive")
         except:
             ui.notify("Upload Failed", type="negative")
             return
@@ -519,13 +534,15 @@ class Scoreboard_Components:
         append_unique_item(self.flag_options, flag_name)
 
         if player == 1:
-            self.player_1_flag.set_options(options=self.flag_options, value=flag_name)
+            self.player_1_flag.set_options(
+                options=self.flag_options, value=flag_name)
             player_2_flag = self.player_2_flag.value
             self.player_2_flag.set_options(
                 options=self.flag_options, value=player_2_flag
             )
         if player == 2:
-            self.player_2_flag.set_options(options=self.flag_options, value=flag_name)
+            self.player_2_flag.set_options(
+                options=self.flag_options, value=flag_name)
             player_1_flag = self.player_1_flag.value
             self.player_1_flag.set_options(
                 options=self.flag_options, value=player_1_flag
