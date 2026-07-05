@@ -102,7 +102,7 @@ async def get_matches(stream_dropdown: ui.select, tournament_url, pool_id):
     print(pool_id)
     slug = extract_slug(tournament_url.value)
     stream_dropdown.disable()
-    stream_list = await update_matches_stream(stream_dropdown,slug)
+    stream_list = await update_matches_stream(slug)
     pool_list = await update_matches_pool(pool_id)
     match_list = stream_list | pool_list
     
@@ -114,7 +114,7 @@ async def get_matches(stream_dropdown: ui.select, tournament_url, pool_id):
     stream_dropdown.set_options(match_list)
     stream_dropdown.enable()
 
-async def update_matches_stream(stream_dropdown: ui.select, slug):
+async def update_matches_stream(slug):
     vars = {"tourneySlug": slug}
     payload = {"query": STREAM_QUERY, "variables": vars}
     async with httpx.AsyncClient() as client:
@@ -124,9 +124,6 @@ async def update_matches_stream(stream_dropdown: ui.select, slug):
         stream_list = {}
 
         if streams == None:
-            stream_list = ["No Matches"]
-            stream_dropdown.set_options(stream_list, value=stream_list[0])
-            stream_dropdown.disable()
             return stream_list
         for stream in streams:
             sets = stream["sets"]
@@ -137,7 +134,7 @@ async def update_matches_stream(stream_dropdown: ui.select, slug):
                     event = (set["event"]["name"])
 
                     stream_list[set["id"]
-                                ] = f"{event}『 {player_1} VS {player_2} 』/{stream["stream"]["streamName"]}"
+                                ] = f"{event}『 {player_1} VS {player_2} 』/{stream['stream']['streamName']}"
                 except:
                     pass
 
@@ -170,7 +167,6 @@ async def update_matches_pool(pool_id):
             
             
         current_page = current_page + 1
-    
     return match_list
 
          
