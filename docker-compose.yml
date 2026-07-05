@@ -5,11 +5,11 @@ services:
     build: .
     container_name: start-stream-assistant
     ports:
-      - "0.0.0.0::8080"
+      - "0.0.0.0::8080" 
     env_file:
       - .env
     volumes:
-      - ./src:/app
-    working_dir: /app
+      - .:/app  
+    working_dir: /app/src 
     command: python main.py
     restart: "no"
