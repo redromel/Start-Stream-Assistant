@@ -10,6 +10,7 @@ from query_parser import *
 from nicegui import ui
 
 
+
 @contextmanager
 def button_disable(button: ui.button):
     button.disable()
@@ -64,7 +65,6 @@ async def get_tourney_info(
         return
     await get_tourney_name(tournament_url, footer)
     await get_events(button, tournament_url, event_dropdown)
-    await get_streamers(stream_dropdown, tournament_url)
 
 
 async def get_tourney_name(tournament_url: ui.input, footer: ui.label):
@@ -98,8 +98,23 @@ async def get_events(button: ui.button, tournament_url: ui.input, event_dropdown
         ui.notify("Invalid Slug", type="warning")
 
 
-async def get_streamers(stream_dropdown: ui.select, tournament_url):
+async def get_matches(stream_dropdown: ui.select, tournament_url, pool_id):
+    print(pool_id)
     slug = extract_slug(tournament_url.value)
+    stream_dropdown.disable()
+    stream_list = await update_matches_stream(stream_dropdown,slug)
+    pool_list = await update_matches_pool(pool_id)
+    match_list = stream_list | pool_list
+    
+    if not match_list:
+        match_list = ["No Matches Available"]
+        stream_dropdown.set_options(match_list, value=stream_list[0])
+        stream_dropdown.disable()
+        return
+    stream_dropdown.set_options(match_list)
+    stream_dropdown.enable()
+
+async def update_matches_stream(stream_dropdown: ui.select, slug):
     vars = {"tourneySlug": slug}
     payload = {"query": STREAM_QUERY, "variables": vars}
     async with httpx.AsyncClient() as client:
@@ -109,52 +124,57 @@ async def get_streamers(stream_dropdown: ui.select, tournament_url):
         stream_list = {}
 
         if streams == None:
-            stream_list = ["No Streamers"]
+            stream_list = ["No Matches"]
             stream_dropdown.set_options(stream_list, value=stream_list[0])
             stream_dropdown.disable()
-            return
+            return stream_list
         for stream in streams:
             sets = stream["sets"]
             for set in sets:
                 try:
                     player_1 = (set["slots"][0]["entrant"]["name"])
                     player_2 = (set["slots"][1]["entrant"]["name"])
+                    event = (set["event"]["name"])
+
                     stream_list[set["id"]
-                                ] = f"{player_1} VS {player_2} | {stream["stream"]["streamName"]}"
+                                ] = f"{event}『 {player_1} VS {player_2} 』/{stream["stream"]["streamName"]}"
                 except:
                     pass
 
-        stream_dropdown.set_options(stream_list)
-        stream_dropdown.enable()
+        # stream_dropdown.set_options(stream_list)
+        return stream_list
 
-
-async def update_streamers(stream_dropdown: ui.select, slug):
-    vars = {"tourneySlug": slug}
-    payload = {"query": STREAM_QUERY, "variables": vars}
-    async with httpx.AsyncClient() as client:
-        response = await client.post(url=API_URL, json=payload, headers=HEADER)
-        streams = stream_parse(response)
-
-        stream_list = {}
-
-        if streams == None:
-            stream_list = ["No Streamers"]
-            stream_dropdown.set_options(stream_list, value=stream_list[0])
-            stream_dropdown.disable()
-            return
-        for stream in streams:
-            sets = stream["sets"]
-            for set in sets:
+async def update_matches_pool(pool_id):
+    
+    match_list = {}
+    current_page = 1
+    total_pages = 1
+    while current_page <= total_pages:
+        vars = {"phaseGroupId": pool_id, "page": current_page, "perPage": 50}
+        payload = {"query": POOL_MATCH_QUERY, "variables": vars}
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url=API_URL, json=payload, headers=HEADER)
+        
+        if current_page == 1:
+            total_pages = page_parse(response)
+        sets = pool_matches_parse(response)
+        for set in sets:
+            if set['stream'] == None and set['state'] != COMPLETED:
                 try:
                     player_1 = (set["slots"][0]["entrant"]["name"])
                     player_2 = (set["slots"][1]["entrant"]["name"])
-                    stream_list[set["id"]
-                                ] = f"{player_1} VS {player_2} | {stream["stream"]["streamName"]}"
+                    event = (set["event"]["name"])
+                    match_list[set["id"]] = f"{event}『{player_1} VS {player_2}』"
                 except:
                     pass
+            
+            
+        current_page = current_page + 1
+    
+    return match_list
 
-        stream_dropdown.set_options(stream_list)
-        stream_dropdown.enable()
+         
+        
 
 
 async def send_mutation(mutation_vars):

@@ -129,7 +129,7 @@ def player_parse(response:  Response):
         data = response_json.get('data')
         player = data.get('player')
         user = player.get('user')
-        # print(json.dumps(data,indent=2))
+    # print(json.dumps(data,indent=2))
         set_json = json.dumps(user)
         set_data = json.loads(set_json)
 
@@ -169,6 +169,24 @@ def stream_parse(response: Response):
         print(response.text)
         return response.status_code
 
+def pool_matches_parse(response: Response):
+    if response.status_code == 200:
+        response_json = response.json()
+        data = response_json.get('data')
+        phase_group = data.get('phaseGroup')
+        sets = phase_group.get('sets')
+        nodes = sets.get('nodes')
+        return nodes
+def page_parse(response: Response):
+    if response.status_code == 200:
+        response_json = response.json()
+        data = response_json.get('data')
+        phase_group = data.get('phaseGroup')
+        sets = phase_group.get('sets')
+        page_info = sets.get('pageInfo')
+        total_pages = page_info.get('totalPages')
+        return total_pages
+        
 
 def get_page_info(response: Response):
     if response.status_code == 200:
@@ -186,3 +204,8 @@ def get_page_info(response: Response):
         print(f"Query failed with status code {response.status_code}")
         print(response.text)
         return response.status_code
+
+def print_response(response_json):
+    with open("response_output.json", "w", encoding="utf-8") as file:
+        json.dump(response_json, file, indent=4, ensure_ascii=False)
+        return

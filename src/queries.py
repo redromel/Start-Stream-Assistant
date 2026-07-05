@@ -180,6 +180,36 @@ query ($setId: ID!) {
     }
   }
 },
+'''
+POOL_MATCH_QUERY ='''
+query ($phaseGroupId: ID!, $page: Int!, $perPage: Int!) {
+  phaseGroup(id: $phaseGroupId) {
+    id
+    displayIdentifier
+    sets(page: $page, perPage: $perPage, sortType: STANDARD){
+      pageInfo{
+        total
+        totalPages
+      }
+      nodes{
+        id
+        state
+        slots{
+          entrant{
+            id
+            name
+          }
+        }
+        stream{
+          enabled
+        }
+        event{
+          name
+        }
+      }
+    }
+  }
+},
 
 '''
 MATCH_QUERY = '''
@@ -241,6 +271,9 @@ query($tourneySlug: String){
             id
             name
           }
+        }
+        event{
+          name
         }
       }
     }

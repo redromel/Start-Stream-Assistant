@@ -37,7 +37,7 @@ class Bracket_Listen():
             ).classes("col-span-1 w-full")
             
             self.bracket_switch = ui.switch(
-                "Get Bracket",
+                "Listen to Pool",
                 on_change=lambda e: bracket_listner(
                     e.sender, self.pool_select
                 ),

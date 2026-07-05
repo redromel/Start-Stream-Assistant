@@ -1,6 +1,6 @@
 # *Scoreboard Stuff
 from collections import Counter
-from event_listner import extract_slug, send_mutation, start_select_match, update_streamers
+from event_listner import  send_mutation, start_select_match, update_matches_stream, extract_slug, get_matches
 from queries import *
 from query_parser import *
 from scoreboard_utils import (
@@ -34,7 +34,7 @@ class Scoreboard_Components:
             ).classes("col-start-1 col-span-3")
 
             self.grab_match_switch = ui.switch(
-                f"Get Streamed Match",
+                f"Get Match",
             ).classes("col-start-4 col-span-3  justify-self-end self-stretch translate-y-3.5").props("size=xl")
 
             self.report_score_button = (
@@ -139,16 +139,16 @@ class Scoreboard_Components:
                 .classes("row-start-5 row-span-2")
             )
             self.player_1_pronouns = (
-                ui.input(label="Prounouns")
-                .classes("w-15")
+                ui.input(label="Pronouns")
+                .classes("w-25")
                 .classes("col-span-3 border-p1")
                 .classes("row-start-5 row-span-2")
             )
             ui.space().classes("col-span-2 border-p1").classes("row-start-4 row-span-1")
             # Row 3 P2
             self.player_2_pronouns = (
-                ui.input(label="Prounouns")
-                .classes("w-15")
+                ui.input(label="Pronouns")
+                .classes("w-25")
                 .classes("col-span-3 border-p1")
                 .classes("row-start-5 row-span-2")
             )
@@ -224,8 +224,11 @@ class Scoreboard_Components:
     async def handle_report_match(self, e, dialog: ui.dialog):
         await self.report_match(e.sender, dialog)
 
-    async def handle_grab_match_click(self, e, slug):
-        await self.get_scoreboard_data(e.sender, slug)
+    async def handle_grab_match_click(self, e, stream_dropdown, tournament_url, pool_id):
+        await self.get_scoreboard_data(e.sender, stream_dropdown, tournament_url, pool_id)
+    
+    async def handle_match_update(self, e, stream_dropdown, tournament_url, pool_id):
+        await self.get_match_data(e.sender, stream_dropdown, tournament_url, pool_id)
 
     async def handle_swap_player_ui(self, e):
         await self.swap_player_ui(e.sender)
@@ -236,13 +239,16 @@ class Scoreboard_Components:
     async def handle_set_flag(self, e, player):
         await self.set_flag(e.sender, player)
 
-    async def get_scoreboard_data(self, sender, slug):
-        print(f"stream select value {self.stream_select.value}")
-        print(f"slug {slug}")
+
+    async def get_match_data(self, sender, stream_dropdown, tournament_url, pool_id):
+        await get_matches(stream_dropdown, tournament_url, pool_id)
+        return
+        
+    async def get_scoreboard_data(self, sender, stream_dropdown, tournament_url, pool_id):
 
         if self.grab_match_switch.value == False:
             await self.unlock_scoreboard()
-            await update_streamers(self.stream_select, slug)
+            await get_matches(stream_dropdown, tournament_url, pool_id)
             return
 
         if self.stream_select.value == [] or self.stream_select.value == 0:
@@ -250,7 +256,7 @@ class Scoreboard_Components:
             self.grab_match_switch.set_value(False)
             return
         try:
-            scoreboard = await self.get_scoreboard(slug)
+            scoreboard = await self.get_scoreboard(extract_slug(tournament_url.value))
 
             await self.write_players_json(scoreboard)
 
@@ -258,8 +264,7 @@ class Scoreboard_Components:
 
         except:
             self.grab_match_switch.value = False
-            await update_streamers(self.stream_select, slug)
-            ui.notify("No Matches Available", type="info")
+            await get_matches(stream_dropdown, tournament_url, pool_id)
             return
 
     async def swap_player_ui(self, sender):
@@ -381,7 +386,6 @@ class Scoreboard_Components:
 
     async def get_scoreboard(self, slug_value: str):
 
-        tourney_slug = extract_slug(slug_value)
         stream_vars = {"setId": self.stream_select.value}
         stream_payload = {"query": MATCH_QUERY, "variables": stream_vars}
 
